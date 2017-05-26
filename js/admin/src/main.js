@@ -1,7 +1,7 @@
 import {extend} from "flarum/extend";
 import app from "flarum/app";
 import PermissionGrid from "flarum/components/PermissionGrid";
-import PermissionDropdown from 'flarum/components/PermissionDropdown';
+
 
 app.initializers.add('flagrow-aqueduct', app => {
     // add the permission option to the relative pane.

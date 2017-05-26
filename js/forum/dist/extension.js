@@ -1,19 +1,23 @@
 'use strict';
 
-System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/routes'], function (_export, _context) {
+System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/routes', 'flagrow/aqueduct/addsBoardToDiscussion'], function (_export, _context) {
     "use strict";
 
-    var extend, routes;
+    var extend, routes, addsBoardToDiscussion;
     return {
         setters: [function (_flarumExtend) {
             extend = _flarumExtend.extend;
         }, function (_flagrowAqueductRoutes) {
             routes = _flagrowAqueductRoutes.default;
+        }, function (_flagrowAqueductAddsBoardToDiscussion) {
+            addsBoardToDiscussion = _flagrowAqueductAddsBoardToDiscussion.default;
         }],
         execute: function () {
 
             app.initializers.add('flagrow-aqueduct', function (app) {
                 routes(app);
+
+                addsBoardToDiscussion();
             });
         }
     };
@@ -217,6 +221,41 @@ System.register('flagrow/aqueduct/routes', ['flagrow/aqueduct/pages/Board'], fun
     return {
         setters: [function (_flagrowAqueductPagesBoard) {
             Board = _flagrowAqueductPagesBoard.default;
+        }],
+        execute: function () {}
+    };
+});;
+'use strict';
+
+System.register('flagrow/aqueduct/addsBoardToDiscussion', ['flarum/extend', 'flarum/utils/DiscussionControls', 'flarum/components/Button'], function (_export, _context) {
+    "use strict";
+
+    var extend, DiscussionControls, Button;
+
+    _export('default', function () {
+        // Add a control allowing direct visiting of the board.
+        extend(DiscussionControls, 'moderationControls', function (items, discussion) {
+            var tags = discussion.tags().filter(function (tag) {
+                return tag.position() !== null && !tag.isChild();
+            });
+
+            tags.forEach(function (tag) {
+                items.add('board-' + tag.slug(), Button.component({
+                    children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.show-board', { tag: tag.name() }),
+                    icon: 'trello',
+                    href: app.route('flagrow.aqueduct.board', { tag: tag.slug() })
+                }));
+            });
+        });
+    });
+
+    return {
+        setters: [function (_flarumExtend) {
+            extend = _flarumExtend.extend;
+        }, function (_flarumUtilsDiscussionControls) {
+            DiscussionControls = _flarumUtilsDiscussionControls.default;
+        }, function (_flarumComponentsButton) {
+            Button = _flarumComponentsButton.default;
         }],
         execute: function () {}
     };

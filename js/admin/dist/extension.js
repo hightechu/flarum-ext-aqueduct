@@ -1,9 +1,9 @@
 "use strict";
 
-System.register("flagrow/aqueduct/main", ["flarum/extend", "flarum/app", "flarum/components/PermissionGrid", "flarum/components/PermissionDropdown"], function (_export, _context) {
+System.register("flagrow/aqueduct/main", ["flarum/extend", "flarum/app", "flarum/components/PermissionGrid"], function (_export, _context) {
     "use strict";
 
-    var extend, app, PermissionGrid, PermissionDropdown;
+    var extend, app, PermissionGrid;
     return {
         setters: [function (_flarumExtend) {
             extend = _flarumExtend.extend;
@@ -11,8 +11,6 @@ System.register("flagrow/aqueduct/main", ["flarum/extend", "flarum/app", "flarum
             app = _flarumApp.default;
         }, function (_flarumComponentsPermissionGrid) {
             PermissionGrid = _flarumComponentsPermissionGrid.default;
-        }, function (_flarumComponentsPermissionDropdown) {
-            PermissionDropdown = _flarumComponentsPermissionDropdown.default;
         }],
         execute: function () {
 

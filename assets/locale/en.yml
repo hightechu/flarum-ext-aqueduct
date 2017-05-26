@@ -1,4 +1,8 @@
 flagrow-aqueduct:
+    forum:
+        discussion:
+            buttons:
+                show-board: "Board {tag}"
     admin:
         permissions:
             board-access: Access to boards
