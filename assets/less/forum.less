@@ -63,6 +63,7 @@
                             list-style: none;
                             background: @body-bg;
                             .box-shadow(0 1px 5px @shadow-color);
+                            margin: 0 0 5px 0;
 
                             .Card--Header {
                                 padding: 4px;
@@ -73,6 +74,9 @@
                                 background: darken(@body-bg, 1%);
                                 font-size: .9em;
                                 text-align: right;
+
+                                border-bottom-left-radius: @border-radius;
+                                border-bottom-right-radius: @border-radius;
 
                                 > a, > div {
                                     display: inline-block;
