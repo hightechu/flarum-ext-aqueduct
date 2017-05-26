@@ -87,7 +87,7 @@ export default class AddColumnModal extends Modal {
                     })}
                     style={{color: tag.color()}}
                     onmouseover={() => this.index = tag}
-                    onclick={m.withAttr(tag, this.selected)}
+                    onclick={() => this.selected(tag)}
                   >
                     {tagIcon(tag)}
                     <span className="SelectTagListItem-name">

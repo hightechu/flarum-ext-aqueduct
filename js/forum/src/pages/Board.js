@@ -90,7 +90,7 @@ export default class Board extends Page {
                 }, m('h4', [tag.name(), m('span', tag.description())])),
                 m('div', {
                     className: 'Board--List'
-                }, this.loading ? '' : m('ul', this.discussions[tag.slug()].map(discussion => {
+                }, this.loading || this.discussions[tag.slug()].length == 0 ? '' : m('ul', this.discussions[tag.slug()].map(discussion => {
                     return this.card(discussion);
                 })))
             ])

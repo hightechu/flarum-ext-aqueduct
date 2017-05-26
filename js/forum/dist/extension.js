@@ -182,7 +182,7 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                             style: tag.color() ? 'border-top-color: ' + tag.color() + ';' : ''
                         }, m('h4', [tag.name(), m('span', tag.description())])), m('div', {
                             className: 'Board--List'
-                        }, this.loading ? '' : m('ul', this.discussions[tag.slug()].map(function (discussion) {
+                        }, this.loading || this.discussions[tag.slug()].length == 0 ? '' : m('ul', this.discussions[tag.slug()].map(function (discussion) {
                             return _this3.card(discussion);
                         })))])]);
                     }
@@ -436,7 +436,9 @@ System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Mo
                       onmouseover: function onmouseover() {
                         return _this2.index = tag;
                       },
-                      onclick: m.withAttr(tag, _this2.selected)
+                      onclick: function onclick() {
+                        return _this2.selected(tag);
+                      }
                     },
                     tagIcon(tag),
                     m(
