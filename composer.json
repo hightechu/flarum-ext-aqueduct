@@ -23,7 +23,12 @@
     },
     "extra": {
         "flarum-extension": {
-            "title": "Flagrow Aqueduct"
+            "title": "Flagrow Aqueduct",
+            "icon": {
+                "name": "trello",
+                "backgroundColor": "#f4f4f4",
+                "color": "#5f4bb6"
+            }
         }
     },
     "autoload": {

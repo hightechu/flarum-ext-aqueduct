@@ -1,0 +1,4 @@
+flagrow-aqueduct:
+    admin:
+        permissions:
+            board-access: Access to boards
