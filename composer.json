@@ -1,0 +1,34 @@
+{
+    "name": "flagrow/aqueduct",
+    "description": "The planning tool extension for your Flarum forum.",
+    "keywords": [
+        "extension",
+        "flarum",
+        "flagrow",
+        "planning",
+        "agile"
+    ],
+    "type": "flarum-extension",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Daniël Klabbers",
+            "email": "daniel@klabbers.email",
+            "homepage": "http://luceos.com"
+        }
+    ],
+    "require": {
+        "flarum/core": "^0.1.0-beta.6",
+        "flarum/flarum-ext-tags": "^0.1.0-beta.7"
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Flagrow Aqueduct"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Flagrow\\Aqueduct\\": "src/"
+        }
+    }
+}
