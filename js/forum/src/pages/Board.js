@@ -2,6 +2,10 @@ import {extend} from "flarum/extend";
 import Page from "flarum/components/Page";
 import icon from 'flarum/helpers/icon';
 import avatar from 'flarum/helpers/avatar';
+import SplitDropdown from 'flarum/components/SplitDropdown';
+import Button from 'flarum/components/Button';
+import ItemList from 'flarum/utils/ItemList';
+import AddColumnModal from 'flagrow/aqueduct/modals/AddColumnModal';
 
 export default class Board extends Page {
     init() {
@@ -43,11 +47,36 @@ export default class Board extends Page {
             className: 'Board'
         }, [
             m('div', {
+                className: 'Board--Controls'
+            }, [
+                SplitDropdown.component({
+                    children: this.controls().toArray(),
+                    icon: 'ellipsis-v',
+                    className: 'App-primaryControl',
+                    buttonClassName: 'Button--primary'
+                })
+            ]),
+            m('div', {
                 className: 'Board--List'
             }, this.tags.map(tag => {
                 return this.column(tag);
             }))
         ])
+    }
+
+    controls() {
+        let items = new ItemList;
+        let tag = this.tag;
+
+        if (tag.canManageBoard()) {
+            items.add('add-column', Button.component({
+                icon: 'gear',
+                children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.add-column'),
+                onclick: () => app.modal.show(new AddColumnModal({tag}))
+            }))
+        }
+
+        return items;
     }
 
     column(tag) {

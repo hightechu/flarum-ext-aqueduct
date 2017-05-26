@@ -1,9 +1,44 @@
 'use strict';
 
-System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/routes', 'flagrow/aqueduct/addsBoardToDiscussion'], function (_export, _context) {
+System.register('flagrow/aqueduct/addsBoardToDiscussion', ['flarum/extend', 'flarum/utils/DiscussionControls', 'flarum/components/Button'], function (_export, _context) {
     "use strict";
 
-    var extend, routes, addsBoardToDiscussion;
+    var extend, DiscussionControls, Button;
+
+    _export('default', function () {
+        // Add a control allowing direct visiting of the board.
+        extend(DiscussionControls, 'moderationControls', function (items, discussion) {
+            var tags = discussion.tags().filter(function (tag) {
+                return tag.position() !== null && !tag.isChild();
+            });
+
+            tags.forEach(function (tag) {
+                items.add('board-' + tag.slug(), Button.component({
+                    children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.show-board', { tag: tag.name() }),
+                    icon: 'trello',
+                    href: app.route('flagrow.aqueduct.board', { tag: tag.slug() })
+                }));
+            });
+        });
+    });
+
+    return {
+        setters: [function (_flarumExtend) {
+            extend = _flarumExtend.extend;
+        }, function (_flarumUtilsDiscussionControls) {
+            DiscussionControls = _flarumUtilsDiscussionControls.default;
+        }, function (_flarumComponentsButton) {
+            Button = _flarumComponentsButton.default;
+        }],
+        execute: function () {}
+    };
+});;
+'use strict';
+
+System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/routes', 'flagrow/aqueduct/addsBoardToDiscussion', 'flarum/Model', 'flarum/tags/models/Tag'], function (_export, _context) {
+    "use strict";
+
+    var extend, routes, addsBoardToDiscussion, Model, Tag;
     return {
         setters: [function (_flarumExtend) {
             extend = _flarumExtend.extend;
@@ -11,10 +46,16 @@ System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/rou
             routes = _flagrowAqueductRoutes.default;
         }, function (_flagrowAqueductAddsBoardToDiscussion) {
             addsBoardToDiscussion = _flagrowAqueductAddsBoardToDiscussion.default;
+        }, function (_flarumModel) {
+            Model = _flarumModel.default;
+        }, function (_flarumTagsModelsTag) {
+            Tag = _flarumTagsModelsTag.default;
         }],
         execute: function () {
 
             app.initializers.add('flagrow-aqueduct', function (app) {
+                Tag.prototype.canManageBoard = Model.attribute('canManageBoard');
+
                 routes(app);
 
                 addsBoardToDiscussion();
@@ -24,10 +65,10 @@ System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/rou
 });;
 "use strict";
 
-System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/components/Page", "flarum/helpers/icon", "flarum/helpers/avatar"], function (_export, _context) {
+System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/components/Page", "flarum/helpers/icon", "flarum/helpers/avatar", "flarum/components/SplitDropdown", "flarum/components/Button", "flarum/utils/ItemList", "flagrow/aqueduct/modals/AddColumnModal"], function (_export, _context) {
     "use strict";
 
-    var extend, Page, icon, avatar, Board;
+    var extend, Page, icon, avatar, SplitDropdown, Button, ItemList, AddColumnModal, Board;
     return {
         setters: [function (_flarumExtend) {
             extend = _flarumExtend.extend;
@@ -37,6 +78,14 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
             icon = _flarumHelpersIcon.default;
         }, function (_flarumHelpersAvatar) {
             avatar = _flarumHelpersAvatar.default;
+        }, function (_flarumComponentsSplitDropdown) {
+            SplitDropdown = _flarumComponentsSplitDropdown.default;
+        }, function (_flarumComponentsButton) {
+            Button = _flarumComponentsButton.default;
+        }, function (_flarumUtilsItemList) {
+            ItemList = _flarumUtilsItemList.default;
+        }, function (_flagrowAqueductModalsAddColumnModal) {
+            AddColumnModal = _flagrowAqueductModalsAddColumnModal.default;
         }],
         execute: function () {
             Board = function (_Page) {
@@ -91,10 +140,35 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                         return m('div', {
                             className: 'Board'
                         }, [m('div', {
+                            className: 'Board--Controls'
+                        }, [SplitDropdown.component({
+                            children: this.controls().toArray(),
+                            icon: 'ellipsis-v',
+                            className: 'App-primaryControl',
+                            buttonClassName: 'Button--primary'
+                        })]), m('div', {
                             className: 'Board--List'
                         }, this.tags.map(function (tag) {
                             return _this2.column(tag);
                         }))]);
+                    }
+                }, {
+                    key: "controls",
+                    value: function controls() {
+                        var items = new ItemList();
+                        var tag = this.tag;
+
+                        if (tag.canManageBoard()) {
+                            items.add('add-column', Button.component({
+                                icon: 'gear',
+                                children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.add-column'),
+                                onclick: function onclick() {
+                                    return app.modal.show(new AddColumnModal({ tag: tag }));
+                                }
+                            }));
+                        }
+
+                        return items;
                     }
                 }, {
                     key: "column",
@@ -227,36 +301,169 @@ System.register('flagrow/aqueduct/routes', ['flagrow/aqueduct/pages/Board'], fun
 });;
 'use strict';
 
-System.register('flagrow/aqueduct/addsBoardToDiscussion', ['flarum/extend', 'flarum/utils/DiscussionControls', 'flarum/components/Button'], function (_export, _context) {
-    "use strict";
+System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/tags/helpers/tagLabel', 'flarum/tags/helpers/tagIcon', 'flarum/helpers/highlight', 'flarum/utils/classList'], function (_export, _context) {
+  "use strict";
 
-    var extend, DiscussionControls, Button;
+  var Modal, Button, tagLabel, tagIcon, highlight, classList, AddColumnModal;
+  return {
+    setters: [function (_flarumComponentsModal) {
+      Modal = _flarumComponentsModal.default;
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton.default;
+    }, function (_flarumTagsHelpersTagLabel) {
+      tagLabel = _flarumTagsHelpersTagLabel.default;
+    }, function (_flarumTagsHelpersTagIcon) {
+      tagIcon = _flarumTagsHelpersTagIcon.default;
+    }, function (_flarumHelpersHighlight) {
+      highlight = _flarumHelpersHighlight.default;
+    }, function (_flarumUtilsClassList) {
+      classList = _flarumUtilsClassList.default;
+    }],
+    execute: function () {
+      AddColumnModal = function (_Modal) {
+        babelHelpers.inherits(AddColumnModal, _Modal);
 
-    _export('default', function () {
-        // Add a control allowing direct visiting of the board.
-        extend(DiscussionControls, 'moderationControls', function (items, discussion) {
-            var tags = discussion.tags().filter(function (tag) {
-                return tag.position() !== null && !tag.isChild();
+        function AddColumnModal() {
+          babelHelpers.classCallCheck(this, AddColumnModal);
+          return babelHelpers.possibleConstructorReturn(this, (AddColumnModal.__proto__ || Object.getPrototypeOf(AddColumnModal)).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(AddColumnModal, [{
+          key: 'title',
+          value: function title() {
+            return app.translator.trans('flagrow-aqueduct.forum.board.modals.add-column.title');
+          }
+        }, {
+          key: 'init',
+          value: function init() {
+            babelHelpers.get(AddColumnModal.prototype.__proto__ || Object.getPrototypeOf(AddColumnModal.prototype), 'init', this).call(this);
+
+            this.tags = app.store.all('tags');
+            this.for = this.props.tag;
+
+            this.selected = m.prop('');
+            this.filter = m.prop('');
+            this.index = this.tags[0].id();
+            this.focused = false;
+          }
+        }, {
+          key: 'content',
+          value: function content() {
+            var _this2 = this;
+
+            var tags = this.tags;
+            var filter = this.filter().toLowerCase();
+
+            tags = tags.filter(function (tag) {
+              return tag.id() != _this2.for.id() && (tag.position() === null || tag.parent() && tag.parent().id() == _this2.for.id());
             });
 
-            tags.forEach(function (tag) {
-                items.add('board-' + tag.slug(), Button.component({
-                    children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.show-board', { tag: tag.name() }),
-                    icon: 'trello',
-                    href: app.route('flagrow.aqueduct.board', { tag: tag.slug() })
-                }));
-            });
-        });
-    });
+            // If the user has entered text in the filter input, then filter by tags
+            // whose name matches what they've entered.
+            if (filter) {
+              tags = tags.filter(function (tag) {
+                return tag.name().substr(0, filter.length).toLowerCase() === filter;
+              });
+            }
 
-    return {
-        setters: [function (_flarumExtend) {
-            extend = _flarumExtend.extend;
-        }, function (_flarumUtilsDiscussionControls) {
-            DiscussionControls = _flarumUtilsDiscussionControls.default;
-        }, function (_flarumComponentsButton) {
-            Button = _flarumComponentsButton.default;
-        }],
-        execute: function () {}
-    };
+            return [m(
+              'div',
+              { className: 'Modal-body' },
+              m(
+                'div',
+                { className: 'TagDiscussionModal-form' },
+                m(
+                  'div',
+                  { className: 'TagDiscussionModal-form-input' },
+                  m(
+                    'div',
+                    { className: 'TagsInput FormControl ' + (this.focused ? 'focus' : '') },
+                    m(
+                      'span',
+                      { className: 'TagsInput-selected' },
+                      this.selected() ? m(
+                        'span',
+                        { className: 'TagsInput-tag', onclick: function onclick() {
+                            _this2.selected('');
+                            _this2.onready();
+                          } },
+                        tagLabel(this.selected())
+                      ) : ''
+                    ),
+                    m('input', { className: 'FormControl',
+                      value: this.filter(),
+                      oninput: m.withAttr('value', this.filter),
+                      onfocus: function onfocus() {
+                        return _this2.focused = true;
+                      },
+                      onblur: function onblur() {
+                        return _this2.focused = false;
+                      } })
+                  )
+                ),
+                m(
+                  'div',
+                  { className: 'TagDiscussionModal-form-submit App-primaryControl' },
+                  Button.component({
+                    type: 'submit',
+                    className: 'Button Button--primary',
+                    disabled: !this.selected(),
+                    icon: 'check',
+                    children: app.translator.trans('flarum-tags.forum.choose_tags.submit_button')
+                  })
+                )
+              )
+            ), m(
+              'div',
+              { className: 'Modal-footer' },
+              m(
+                'ul',
+                { className: 'TagDiscussionModal-list SelectTagList' },
+                tags.filter(function (tag) {
+                  return filter || !tag.parent() || _this2.selected().id == tag.id();
+                }).map(function (tag) {
+                  return m(
+                    'li',
+                    { 'data-index': tag.id(),
+                      className: classList({
+                        pinned: tag.position() !== null,
+                        child: !!tag.parent(),
+                        colored: !!tag.color(),
+                        selected: _this2.selected() && _this2.selected().id == tag.id(),
+                        active: _this2.index === tag
+                      }),
+                      style: { color: tag.color() },
+                      onmouseover: function onmouseover() {
+                        return _this2.index = tag;
+                      },
+                      onclick: m.withAttr(tag, _this2.selected)
+                    },
+                    tagIcon(tag),
+                    m(
+                      'span',
+                      { className: 'SelectTagListItem-name' },
+                      highlight(tag.name(), filter)
+                    ),
+                    tag.description() ? m(
+                      'span',
+                      { className: 'SelectTagListItem-description' },
+                      tag.description()
+                    ) : ''
+                  );
+                })
+              )
+            )];
+          }
+        }, {
+          key: 'className',
+          value: function className() {
+            return 'AddColumnModal';
+          }
+        }]);
+        return AddColumnModal;
+      }(Modal);
+
+      _export('default', AddColumnModal);
+    }
+  };
 });

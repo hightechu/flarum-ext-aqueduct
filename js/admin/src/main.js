@@ -13,4 +13,14 @@ app.initializers.add('flagrow-aqueduct', app => {
             allowGuest: true
         });
     });
+
+    extend(PermissionGrid.prototype, 'moderateItems', items => {
+        // moderates boards.
+        items.add('board-admin', {
+            icon: 'trello',
+            label: app.translator.trans('flagrow-aqueduct.admin.permissions.board-admin'),
+            permission: 'discussion.flagrow.aqueduct.board-admin',
+            allowGuest: true
+        });
+    });
 });

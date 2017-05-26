@@ -1,8 +1,15 @@
 flagrow-aqueduct:
     forum:
+        board:
+            modals:
+                add-column:
+                    title: Add a column to the board
+            buttons:
+                add-column: Add column
         discussion:
             buttons:
                 show-board: "Board {tag}"
     admin:
         permissions:
             board-access: Access to boards
+            board-admin: Board admin
