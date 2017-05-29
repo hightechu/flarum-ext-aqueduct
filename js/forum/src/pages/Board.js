@@ -25,6 +25,8 @@ export default class Board extends Page {
 
         app.setTitle('');
         app.setTitleCount(0);
+
+        this.setDraggable();
     }
 
     view() {
@@ -71,7 +73,8 @@ export default class Board extends Page {
 
     column(tag) {
         return m('div', {
-            className: 'Board--Column ' + tag.name()
+            className: 'Board--Column ' + tag.name(),
+            slug: tag.slug()
         }, [
             m('div', {className: 'Board--Inner'}, [
                 m('header', {
@@ -79,7 +82,7 @@ export default class Board extends Page {
                     style: tag.color() ? 'border-top-color: ' + tag.color() + ';' : ''
                 }, m('h4', [tag.name(), m('span', tag.description())])),
                 m('div', {
-                    className: 'Board--List'
+                    className: 'Board--Item-List'
                 }, this.loading || this.discussions[tag.slug()].length == 0 ? '' : m('ul', this.discussions[tag.slug()].map(discussion => {
                     return this.card(discussion);
                 })))
@@ -194,5 +197,30 @@ export default class Board extends Page {
             method: 'get',
             url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug(),
         });
+    }
+
+    setDraggable() {
+
+        sortable('.Board--List', {
+            items: '.Board--Column',
+            handle: '.Board--Header',
+            placeholder: '<div class="Board--Column Placeholder"></div>',
+            forcePlaceholderSize: true
+        })[0].addEventListener('sortupdate', function (e) {
+            const sorting = $(e.target).find('.Board--Column').map(function () {
+                return $(this).attr('slug');
+            }).get()
+
+            console.log(sorting)
+
+            this.updateSorting(sorting)
+        });
+    }
+
+    updateSorting(sorting) {
+        return app.request({
+            method: 'post',
+            url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug()
+        })
     }
 }

@@ -18,7 +18,7 @@ class AddTagAttributes
     {
         if ($event->isSerializer(TagSerializer::class)) {
             $event->attributes['canManageBoard'] = $event->actor->can(
-                'discussion.flagrow.aqueduct.board-admin',
+                'tag'.$event->model->id.'.discussion.flagrow.aqueduct.board-admin',
                 $event->model
             );
         }
