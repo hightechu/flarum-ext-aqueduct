@@ -11,7 +11,7 @@ export default function () {
                 items.add('board-' + tag.slug(), Button.component({
                     children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.show-board', {tag: tag.name()}),
                     icon: 'trello',
-                    href: app.route('flagrow.aqueduct.board', {tag: tag.slug()})
+                    onclick: () => m.route(app.route('flagrow.aqueduct.board', {tag: tag.slug()}))
                 }));
         })
     });

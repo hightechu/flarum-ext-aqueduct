@@ -37,14 +37,14 @@ export default class Board extends Page {
         }, [
             m('div', {
                 className: 'Board--Controls'
-            }, [
+            }, m('div', {className: 'container'}, [
                 SplitDropdown.component({
                     children: this.controls().toArray(),
                     icon: 'ellipsis-v',
                     className: 'App-primaryControl',
                     buttonClassName: 'Button--primary'
                 })
-            ]),
+            ])),
             m('div', {
                 className: 'Board--List'
             }, this.tags.map(tag => {
@@ -181,7 +181,7 @@ export default class Board extends Page {
             results.forEach(discussion => {
                 discussion = app.store.getById(discussion.type, discussion.id);
 
-                if (discussion.tags().map(tag => tag.id()).indexOf(tag.id()) > 0) {
+                if (discussion.tags().map(tag => tag.id()).indexOf(tag.id()) != -1) {
                     this.discussions[tag.slug()].push(discussion);
                 }
             });

@@ -754,7 +754,9 @@ System.register('flagrow/aqueduct/addsBoardToDiscussion', ['flarum/extend', 'fla
                 items.add('board-' + tag.slug(), Button.component({
                     children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.show-board', { tag: tag.name() }),
                     icon: 'trello',
-                    href: app.route('flagrow.aqueduct.board', { tag: tag.slug() })
+                    onclick: function onclick() {
+                        return m.route(app.route('flagrow.aqueduct.board', { tag: tag.slug() }));
+                    }
                 }));
             });
         });
@@ -1066,12 +1068,12 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                             className: 'Board'
                         }, [m('div', {
                             className: 'Board--Controls'
-                        }, [SplitDropdown.component({
+                        }, m('div', { className: 'container' }, [SplitDropdown.component({
                             children: this.controls().toArray(),
                             icon: 'ellipsis-v',
                             className: 'App-primaryControl',
                             buttonClassName: 'Button--primary'
-                        })]), m('div', {
+                        })])), m('div', {
                             className: 'Board--List'
                         }, this.tags.map(function (tag) {
                             return _this2.column(tag);
@@ -1199,7 +1201,7 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
 
                                 if (discussion.tags().map(function (tag) {
                                     return tag.id();
-                                }).indexOf(tag.id()) > 0) {
+                                }).indexOf(tag.id()) != -1) {
                                     _this6.discussions[tag.slug()].push(discussion);
                                 }
                             });
