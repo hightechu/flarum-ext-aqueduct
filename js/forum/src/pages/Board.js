@@ -11,24 +11,9 @@ export default class Board extends Page {
     init() {
         super.init();
 
-        this.loading = true;
-
-        // The primary tag for which we will show the board.
-        this.tag = app.store.getBy('tags', 'slug', m.route.param('tag'));
-
-        /**
-         * The discussions in the discussion list.
-         *
-         * @type {Discussion[]}
-         */
-        this.discussions = {};
-
-        // Todo make this a configured set of column tags.
-        this.tags = app.store.all('tags').filter(tag => tag.position() === null);
-
         this.bodyClass = 'Aqueduct--Board';
 
-        this.refresh()
+        this.refresh(true)
     }
 
 
@@ -72,7 +57,12 @@ export default class Board extends Page {
             items.add('add-column', Button.component({
                 icon: 'gear',
                 children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.add-column'),
-                onclick: () => app.modal.show(new AddColumnModal({tag}))
+                onclick: () => app.modal.show(new AddColumnModal({
+                    tag: tag,
+                    onsubmit: tag => {
+                        this.refresh(true)
+                    }
+                }))
             }))
         }
 
@@ -140,7 +130,19 @@ export default class Board extends Page {
     refresh(clear = true) {
         if (clear) {
             this.loading = true;
+
+            // The primary tag for which we will show the board.
+            this.tag = app.store.getBy('tags', 'slug', m.route.param('tag'));
+
+            /**
+             * The discussions in the discussion list.
+             *
+             * @type {Discussion[]}
+             */
             this.discussions = {};
+
+            // Todo make this a configured set of column tags.
+            this.tags = this.tag.columns() || [];
         }
 
         this.load().then(
@@ -188,8 +190,6 @@ export default class Board extends Page {
      * Load discussions based on the tags.
      */
     load() {
-        let params = {};
-
         return app.request({
             method: 'get',
             url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug(),

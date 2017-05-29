@@ -8,6 +8,7 @@ import Tag from 'flarum/tags/models/Tag';
 
 app.initializers.add('flagrow-aqueduct', function(app) {
     Tag.prototype.canManageBoard = Model.attribute('canManageBoard');
+    Tag.prototype.columns = Model.hasMany('columns');
 
     routes(app);
 

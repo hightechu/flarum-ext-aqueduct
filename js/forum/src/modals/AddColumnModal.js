@@ -109,4 +109,25 @@ export default class AddColumnModal extends Modal {
     className() {
         return 'AddColumnModal';
     }
+
+
+    onsubmit(e) {
+        e.preventDefault();
+
+        const board = this.for;
+        const column = this.selected();
+
+        app.request({
+            method: 'POST',
+            url: app.forum.attribute('apiUrl') + '/board/' + board.slug() + '/columns/' + column.slug(),
+        }).then(results => {
+            let tag = app.store.pushPayload(results);
+
+            if (this.props.onsubmit) this.props.onsubmit(tag);
+
+            app.modal.close();
+
+            m.redraw.strategy('none');
+        });
+    }
 }

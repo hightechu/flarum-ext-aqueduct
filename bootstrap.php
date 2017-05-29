@@ -9,4 +9,5 @@ return function (Dispatcher $events) {
     $events->subscribe(Listeners\AddWebRoutes::class);
     $events->subscribe(Listeners\AddApiRoutes::class);
     $events->subscribe(Listeners\AddTagAttributes::class);
+    $events->subscribe(Listeners\AddTagRelationships::class);
 };
