@@ -81,6 +81,21 @@ class TagRepository extends NativeTagRepository
 
     /**
      * @param Tag $board
+     * @param array $slugs
+     */
+    public function columnSorting(Tag $board, $slugs = [])
+    {
+        foreach ($slugs as $sort => $slug) {
+            $column = $this->getBySlug($slug);
+
+            $this->updateColumn($board, $column, [
+                'sort' => $sort
+            ]);
+        }
+    }
+
+    /**
+     * @param Tag $board
      * @param Tag $column
      * @param array $pivot
      * @return int
