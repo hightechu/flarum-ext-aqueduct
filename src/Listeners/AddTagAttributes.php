@@ -21,6 +21,12 @@ class AddTagAttributes
                 'tag'.$event->model->id.'.discussion.flagrow.aqueduct.board-admin',
                 $event->model
             );
+
+            // Inject the pivot information.
+            if (isset($event->model->pivot)) {
+                $event->attributes['board_sort'] = $event->model->pivot->sort;
+                $event->attributes['board_max_items'] = $event->model->pivot->max_items;
+            }
         }
 
         if ($event->isSerializer(ForumSerializer::class)) {

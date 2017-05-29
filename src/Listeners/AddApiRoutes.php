@@ -2,6 +2,7 @@
 
 namespace Flagrow\Aqueduct\Listeners;
 
+use Flagrow\Aqueduct\Api\Controllers\ColumnSortingController;
 use Flagrow\Aqueduct\Api\Controllers\ToggleColumnController;
 use Flagrow\Aqueduct\Api\Controllers\ShowBoardController;
 use Flarum\Event\ConfigureApiRoutes;
@@ -26,6 +27,12 @@ class AddApiRoutes
             '/board/{tag}',
             'flagrow.aqueduct.api.board',
             ShowBoardController::class
+        );
+
+        $event->post(
+            '/board/{board}/sorting',
+            'flagrow.aqueduct.api.board.columns.sorting',
+            ColumnSortingController::class
         );
 
         $event->post(

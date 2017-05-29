@@ -794,6 +794,8 @@ System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/rou
             app.initializers.add('flagrow-aqueduct', function (app) {
                 Tag.prototype.canManageBoard = Model.attribute('canManageBoard');
                 Tag.prototype.columns = Model.hasMany('columns');
+                Tag.prototype.board_sort = Model.attribute('board_sort') || null;
+                Tag.prototype.board_max_items = Model.attribute('board_max_items') || null;
 
                 routes(app);
 
@@ -839,10 +841,15 @@ System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Mo
         }, {
           key: 'init',
           value: function init() {
-            babelHelpers.get(AddColumnModal.prototype.__proto__ || Object.getPrototypeOf(AddColumnModal.prototype), 'init', this).call(this);
+            var _this2 = this;
 
-            this.tags = app.store.all('tags');
+            babelHelpers.get(AddColumnModal.prototype.__proto__ || Object.getPrototypeOf(AddColumnModal.prototype), 'init', this).call(this);
             this.for = this.props.tag;
+
+            this.tags = app.store.all('tags').filter(function (tag) {
+              console.log(_this2.for.columns().indexOf(tag));
+              return _this2.for.columns().indexOf(tag) == -1;
+            });
 
             this.selected = m.prop('');
             this.filter = m.prop('');
@@ -852,13 +859,13 @@ System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Mo
         }, {
           key: 'content',
           value: function content() {
-            var _this2 = this;
+            var _this3 = this;
 
             var tags = this.tags;
             var filter = this.filter().toLowerCase();
 
             tags = tags.filter(function (tag) {
-              return tag.id() != _this2.for.id() && (tag.position() === null || tag.parent() && tag.parent().id() == _this2.for.id());
+              return tag.id() != _this3.for.id() && (tag.position() === null || tag.parent() && tag.parent().id() == _this3.for.id());
             });
 
             // If the user has entered text in the filter input, then filter by tags
@@ -887,8 +894,8 @@ System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Mo
                       this.selected() ? m(
                         'span',
                         { className: 'TagsInput-tag', onclick: function onclick() {
-                            _this2.selected('');
-                            _this2.onready();
+                            _this3.selected('');
+                            _this3.onready();
                           } },
                         tagLabel(this.selected())
                       ) : ''
@@ -897,10 +904,10 @@ System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Mo
                       value: this.filter(),
                       oninput: m.withAttr('value', this.filter),
                       onfocus: function onfocus() {
-                        return _this2.focused = true;
+                        return _this3.focused = true;
                       },
                       onblur: function onblur() {
-                        return _this2.focused = false;
+                        return _this3.focused = false;
                       } })
                   )
                 ),
@@ -923,7 +930,7 @@ System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Mo
                 'ul',
                 { className: 'TagDiscussionModal-list SelectTagList' },
                 tags.filter(function (tag) {
-                  return filter || !tag.parent() || _this2.selected().id == tag.id();
+                  return filter || !tag.parent() || _this3.selected().id == tag.id();
                 }).map(function (tag) {
                   return m(
                     'li',
@@ -932,15 +939,15 @@ System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Mo
                         pinned: tag.position() !== null,
                         child: !!tag.parent(),
                         colored: !!tag.color(),
-                        selected: _this2.selected() && _this2.selected().id == tag.id(),
-                        active: _this2.index === tag
+                        selected: _this3.selected() && _this3.selected().id == tag.id(),
+                        active: _this3.index === tag
                       }),
                       style: { color: tag.color() },
                       onmouseover: function onmouseover() {
-                        return _this2.index = tag;
+                        return _this3.index = tag;
                       },
                       onclick: function onclick() {
-                        return _this2.selected(tag);
+                        return _this3.selected(tag);
                       }
                     },
                     tagIcon(tag),
@@ -967,7 +974,7 @@ System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Mo
         }, {
           key: 'onsubmit',
           value: function onsubmit(e) {
-            var _this3 = this;
+            var _this4 = this;
 
             e.preventDefault();
 
@@ -980,7 +987,7 @@ System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Mo
             }).then(function (results) {
               var tag = app.store.pushPayload(results);
 
-              if (_this3.props.onsubmit) _this3.props.onsubmit(tag);
+              if (_this4.props.onsubmit) _this4.props.onsubmit(tag);
 
               app.modal.close();
 
@@ -1162,6 +1169,12 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
 
                             // Todo make this a configured set of column tags.
                             this.tags = this.tag.columns() || [];
+                            console.log(this.tags);
+                            this.tags.sort(function (a, b) {
+                                console.log(a.board_sort(), b.board_sort());
+                                return a.board_sort() - b.board_sort();
+                            });
+                            console.log(this.tags);
                         }
 
                         this.load().then(function (results) {
@@ -1211,6 +1224,7 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                 }, {
                     key: "setDraggable",
                     value: function setDraggable() {
+                        var _this7 = this;
 
                         sortable('.Board--List', {
                             items: '.Board--Column',
@@ -1224,7 +1238,7 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
 
                             console.log(sorting);
 
-                            this.updateSorting(sorting);
+                            _this7.updateSorting(sorting);
                         });
                     }
                 }, {
@@ -1232,7 +1246,8 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                     value: function updateSorting(sorting) {
                         return app.request({
                             method: 'post',
-                            url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug()
+                            url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug() + '/sorting',
+                            data: sorting
                         });
                     }
                 }]);

@@ -6,6 +6,7 @@ use Flagrow\Aqueduct\Repositories\TagRepository;
 use Flarum\Api\Controller\AbstractResourceController;
 use Flarum\Core\Access\AssertPermissionTrait;
 use Flarum\Tags\Api\Serializer\TagSerializer;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -44,7 +45,7 @@ class ColumnSortingController extends AbstractResourceController
 
         $this->assertCan($actor,'tag'.$board->id.'.discussion.flagrow.aqueduct.board-admin');
 
-        $this->tags->columnSorting($board, $request->getAttribute('sorting'));
+        $this->tags->columnSorting($board, $request->getParsedBody());
 
         $board->load('columns');
 

@@ -146,6 +146,12 @@ export default class Board extends Page {
 
             // Todo make this a configured set of column tags.
             this.tags = this.tag.columns() || [];
+            console.log(this.tags)
+            this.tags.sort((a,b) => {
+                console.log(a.board_sort(), b.board_sort())
+                return a.board_sort() - b.board_sort();
+            });
+            console.log(this.tags)
         }
 
         this.load().then(
@@ -206,7 +212,7 @@ export default class Board extends Page {
             handle: '.Board--Header',
             placeholder: '<div class="Board--Column Placeholder"></div>',
             forcePlaceholderSize: true
-        })[0].addEventListener('sortupdate', function (e) {
+        })[0].addEventListener('sortupdate', (e) => {
             const sorting = $(e.target).find('.Board--Column').map(function () {
                 return $(this).attr('slug');
             }).get()
@@ -220,7 +226,8 @@ export default class Board extends Page {
     updateSorting(sorting) {
         return app.request({
             method: 'post',
-            url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug()
+            url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug() + '/sorting',
+            data: sorting
         })
     }
 }

@@ -102,6 +102,6 @@ class TagRepository extends NativeTagRepository
      */
     public function updateColumn(Tag $board, Tag $column, $pivot = [])
     {
-        return $board->columns()->updateExistingPivot($column, $pivot);
+        return $board->columns()->updateExistingPivot($column->id, $pivot);
     }
 }

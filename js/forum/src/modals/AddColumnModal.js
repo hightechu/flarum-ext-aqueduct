@@ -12,9 +12,12 @@ export default class AddColumnModal extends Modal {
     }
     init() {
         super.init();
-
-        this.tags = app.store.all('tags');
         this.for = this.props.tag;
+
+        this.tags = app.store.all('tags').filter(tag => {
+            console.log(this.for.columns().indexOf(tag))
+            return this.for.columns().indexOf(tag) == -1;
+        });
 
         this.selected = m.prop('');
         this.filter = m.prop('');
