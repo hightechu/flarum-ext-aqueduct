@@ -13,7 +13,9 @@ export default class Board extends Page {
 
         this.bodyClass = 'Aqueduct--Board';
 
-        this.refresh(true)
+        this.draggable = null;
+
+        this.refresh(true);
     }
 
 
@@ -144,14 +146,11 @@ export default class Board extends Page {
              */
             this.discussions = {};
 
-            // Todo make this a configured set of column tags.
             this.tags = this.tag.columns() || [];
-            console.log(this.tags)
+
             this.tags.sort((a,b) => {
-                console.log(a.board_sort(), b.board_sort())
                 return a.board_sort() - b.board_sort();
             });
-            console.log(this.tags)
         }
 
         this.load().then(
@@ -185,7 +184,7 @@ export default class Board extends Page {
                 if (discussion.tags().map(tag => tag.id()).indexOf(tag.id()) > 0) {
                     this.discussions[tag.slug()].push(discussion);
                 }
-            })
+            });
         })
 
         this.loading = false;
@@ -207,20 +206,24 @@ export default class Board extends Page {
 
     setDraggable() {
 
-        sortable('.Board--List', {
-            items: '.Board--Column',
-            handle: '.Board--Header',
-            placeholder: '<div class="Board--Column Placeholder"></div>',
-            forcePlaceholderSize: true
-        })[0].addEventListener('sortupdate', (e) => {
-            const sorting = $(e.target).find('.Board--Column').map(function () {
-                return $(this).attr('slug');
-            }).get()
+        if (this.draggable) {
+            sortable('.Board--List')
+        } else {
+            sortable('.Board--List', {
+                items: '.Board--Column',
+                handle: '.Board--Header',
+                placeholder: '<div class="Board--Column Placeholder"></div>',
+                forcePlaceholderSize: true
+            })[0].addEventListener('sortupdate', (e) => {
+                const sorting = $(e.target).find('.Board--Column').map(function () {
+                    return $(this).attr('slug');
+                }).get();
 
-            console.log(sorting)
+                this.updateSorting(sorting);
+            });
+        }
 
-            this.updateSorting(sorting)
-        });
+        this.draggable = true;
     }
 
     updateSorting(sorting) {
@@ -228,6 +231,11 @@ export default class Board extends Page {
             method: 'post',
             url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug() + '/sorting',
             data: sorting
+        }).then(results => {
+            app.store.pushPayload(results);
+            m.redraw()
+
+            this.setDraggable()
         })
     }
 }

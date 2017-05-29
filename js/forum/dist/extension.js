@@ -847,7 +847,6 @@ System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Mo
             this.for = this.props.tag;
 
             this.tags = app.store.all('tags').filter(function (tag) {
-              console.log(_this2.for.columns().indexOf(tag));
               return _this2.for.columns().indexOf(tag) == -1;
             });
 
@@ -1042,6 +1041,8 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
 
                         this.bodyClass = 'Aqueduct--Board';
 
+                        this.draggable = null;
+
                         this.refresh(true);
                     }
                 }, {
@@ -1167,14 +1168,11 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                              */
                             this.discussions = {};
 
-                            // Todo make this a configured set of column tags.
                             this.tags = this.tag.columns() || [];
-                            console.log(this.tags);
+
                             this.tags.sort(function (a, b) {
-                                console.log(a.board_sort(), b.board_sort());
                                 return a.board_sort() - b.board_sort();
                             });
-                            console.log(this.tags);
                         }
 
                         this.load().then(function (results) {
@@ -1226,28 +1224,39 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                     value: function setDraggable() {
                         var _this7 = this;
 
-                        sortable('.Board--List', {
-                            items: '.Board--Column',
-                            handle: '.Board--Header',
-                            placeholder: '<div class="Board--Column Placeholder"></div>',
-                            forcePlaceholderSize: true
-                        })[0].addEventListener('sortupdate', function (e) {
-                            var sorting = $(e.target).find('.Board--Column').map(function () {
-                                return $(this).attr('slug');
-                            }).get();
+                        if (this.draggable) {
+                            sortable('.Board--List');
+                        } else {
+                            sortable('.Board--List', {
+                                items: '.Board--Column',
+                                handle: '.Board--Header',
+                                placeholder: '<div class="Board--Column Placeholder"></div>',
+                                forcePlaceholderSize: true
+                            })[0].addEventListener('sortupdate', function (e) {
+                                var sorting = $(e.target).find('.Board--Column').map(function () {
+                                    return $(this).attr('slug');
+                                }).get();
 
-                            console.log(sorting);
+                                _this7.updateSorting(sorting);
+                            });
+                        }
 
-                            _this7.updateSorting(sorting);
-                        });
+                        this.draggable = true;
                     }
                 }, {
                     key: "updateSorting",
                     value: function updateSorting(sorting) {
+                        var _this8 = this;
+
                         return app.request({
                             method: 'post',
                             url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug() + '/sorting',
                             data: sorting
+                        }).then(function (results) {
+                            app.store.pushPayload(results);
+                            m.redraw();
+
+                            _this8.setDraggable();
                         });
                     }
                 }]);
