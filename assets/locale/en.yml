@@ -13,3 +13,4 @@ flagrow-aqueduct:
         permissions:
             board-access: Access to boards
             board-admin: Board admin
+            board-user: Participation on boards

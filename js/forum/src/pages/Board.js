@@ -1,11 +1,10 @@
 import {extend} from "flarum/extend";
 import Page from "flarum/components/Page";
-import icon from 'flarum/helpers/icon';
-import avatar from 'flarum/helpers/avatar';
 import SplitDropdown from 'flarum/components/SplitDropdown';
 import Button from 'flarum/components/Button';
 import ItemList from 'flarum/utils/ItemList';
 import AddColumnModal from 'flagrow/aqueduct/modals/AddColumnModal';
+import Card from 'flagrow/aqueduct/components/Card';
 
 export default class Board extends Page {
     init() {
@@ -27,8 +26,9 @@ export default class Board extends Page {
 
         app.setTitle('');
         app.setTitleCount(0);
-
-        this.setDraggable();
+        if (this.tag.canManageBoard()) {
+            this.setDraggable();
+        }
     }
 
     view() {
@@ -86,45 +86,10 @@ export default class Board extends Page {
                 m('div', {
                     className: 'Board--Item-List'
                 }, this.loading || this.discussions[tag.slug()].length == 0 ? '' : m('ul', this.discussions[tag.slug()].map(discussion => {
-                    return this.card(discussion);
+                    return Card.component({discussion});
                 })))
             ])
         ]);
-    }
-
-    card(discussion) {
-        const jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
-        const isUnread = discussion.isUnread();
-        const startUser = discussion.startUser();
-
-        return m('li', {
-            className: 'Card' + (isUnread ? ' Unread' : '')
-        }, m('div', [
-            m('div', {className: 'Card--Header'}, [
-                // Issue title.
-                m('div', {className: 'Card--Title'},
-                    <a href={app.route.discussion(discussion, jumpTo)}
-                       config={m.route}>
-                        {discussion.title()}
-                    </a>
-                )
-            ]),
-            m('div', {className: 'Card--Footer'}, [
-                <a href={startUser ? app.route.user(startUser) : '#'}
-                   className="Card--Author"
-                   config={function(element) {
-                       $(element).tooltip({placement: 'right'});
-                       m.route.apply(this, arguments);
-                   }}>
-                    {avatar(startUser, {title: ''})}
-                </a>,
-                // Number of comments.
-                m('div', [
-                    icon(isUnread ? 'commenting-o' : 'comment-o'),
-                    discussion[isUnread ? 'unreadCount' : 'repliesCount']()
-                ])
-            ])
-        ]))
     }
 
     /**
@@ -204,8 +169,10 @@ export default class Board extends Page {
         });
     }
 
+    /**
+     * Listens to dragging event and updates the sorting of the columns.
+     */
     setDraggable() {
-
         if (this.draggable) {
             sortable('.Board--List')
         } else {

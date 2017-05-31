@@ -736,22 +736,25 @@ sortable.disable = function (sortableElement) {
 return sortable;
 }));
 ;
-'use strict';
+"use strict";
 
-System.register('flagrow/aqueduct/addsBoardToDiscussion', ['flarum/extend', 'flarum/utils/DiscussionControls', 'flarum/components/Button'], function (_export, _context) {
+System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "flarum/components/DiscussionPage", "flarum/components/Button", "flarum/components/SplitDropdown", "flarum/utils/ItemList"], function (_export, _context) {
     "use strict";
 
-    var extend, DiscussionControls, Button;
+    var extend, DiscussionPage, Button, SplitDropdown, ItemList;
 
-    _export('default', function () {
+    _export("default", function () {
         // Add a control allowing direct visiting of the board.
-        extend(DiscussionControls, 'moderationControls', function (items, discussion) {
+        extend(DiscussionPage.prototype, 'sidebarItems', function (items) {
+            var discussion = this.discussion;
             var tags = discussion.tags().filter(function (tag) {
                 return tag.position() !== null && !tag.isChild();
             });
 
+            var controls = new ItemList();
+
             tags.forEach(function (tag) {
-                items.add('board-' + tag.slug(), Button.component({
+                controls.add('board-' + tag.slug(), Button.component({
                     children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.show-board', { tag: tag.name() }),
                     icon: 'trello',
                     onclick: function onclick() {
@@ -759,16 +762,34 @@ System.register('flagrow/aqueduct/addsBoardToDiscussion', ['flarum/extend', 'fla
                     }
                 }));
             });
+
+            if (tags.length > 0) {
+                controls.add('assignee', Button.component({
+                    children: discussion.assignee() ? app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.update-assignee', { assignee: discussion.assignee().username }) : app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.set-assignee'),
+                    icon: 'user-circle-o'
+                }));
+
+                items.add('board', SplitDropdown.component({
+                    children: controls.toArray(),
+                    icon: 'trello',
+                    className: 'App-primaryControl',
+                    buttonClassName: 'Button--secondary'
+                }), -50);
+            }
         });
     });
 
     return {
         setters: [function (_flarumExtend) {
             extend = _flarumExtend.extend;
-        }, function (_flarumUtilsDiscussionControls) {
-            DiscussionControls = _flarumUtilsDiscussionControls.default;
+        }, function (_flarumComponentsDiscussionPage) {
+            DiscussionPage = _flarumComponentsDiscussionPage.default;
         }, function (_flarumComponentsButton) {
             Button = _flarumComponentsButton.default;
+        }, function (_flarumComponentsSplitDropdown) {
+            SplitDropdown = _flarumComponentsSplitDropdown.default;
+        }, function (_flarumUtilsItemList) {
+            ItemList = _flarumUtilsItemList.default;
         }],
         execute: function () {}
     };
@@ -795,6 +816,7 @@ System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/rou
 
             app.initializers.add('flagrow-aqueduct', function (app) {
                 Tag.prototype.canManageBoard = Model.attribute('canManageBoard');
+                Tag.prototype.canUseBoard = Model.attribute('canUseBoard');
                 Tag.prototype.columns = Model.hasMany('columns');
                 Tag.prototype.board_sort = Model.attribute('board_sort') || null;
                 Tag.prototype.board_max_items = Model.attribute('board_max_items') || null;
@@ -1005,19 +1027,15 @@ System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Mo
 });;
 "use strict";
 
-System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/components/Page", "flarum/helpers/icon", "flarum/helpers/avatar", "flarum/components/SplitDropdown", "flarum/components/Button", "flarum/utils/ItemList", "flagrow/aqueduct/modals/AddColumnModal"], function (_export, _context) {
+System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/components/Page", "flarum/components/SplitDropdown", "flarum/components/Button", "flarum/utils/ItemList", "flagrow/aqueduct/modals/AddColumnModal", "flagrow/aqueduct/components/Card"], function (_export, _context) {
     "use strict";
 
-    var extend, Page, icon, avatar, SplitDropdown, Button, ItemList, AddColumnModal, Board;
+    var extend, Page, SplitDropdown, Button, ItemList, AddColumnModal, Card, Board;
     return {
         setters: [function (_flarumExtend) {
             extend = _flarumExtend.extend;
         }, function (_flarumComponentsPage) {
             Page = _flarumComponentsPage.default;
-        }, function (_flarumHelpersIcon) {
-            icon = _flarumHelpersIcon.default;
-        }, function (_flarumHelpersAvatar) {
-            avatar = _flarumHelpersAvatar.default;
         }, function (_flarumComponentsSplitDropdown) {
             SplitDropdown = _flarumComponentsSplitDropdown.default;
         }, function (_flarumComponentsButton) {
@@ -1026,6 +1044,8 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
             ItemList = _flarumUtilsItemList.default;
         }, function (_flagrowAqueductModalsAddColumnModal) {
             AddColumnModal = _flagrowAqueductModalsAddColumnModal.default;
+        }, function (_flagrowAqueductComponentsCard) {
+            Card = _flagrowAqueductComponentsCard.default;
         }],
         execute: function () {
             Board = function (_Page) {
@@ -1056,8 +1076,9 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
 
                         app.setTitle('');
                         app.setTitleCount(0);
-
-                        this.setDraggable();
+                        if (this.tag.canManageBoard()) {
+                            this.setDraggable();
+                        }
                     }
                 }, {
                     key: "view",
@@ -1107,8 +1128,6 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                 }, {
                     key: "column",
                     value: function column(tag) {
-                        var _this4 = this;
-
                         return m('div', {
                             className: 'Board--Column ' + tag.name(),
                             slug: tag.slug()
@@ -1118,42 +1137,13 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                         }, m('h4', [tag.name(), m('span', tag.description())])), m('div', {
                             className: 'Board--Item-List'
                         }, this.loading || this.discussions[tag.slug()].length == 0 ? '' : m('ul', this.discussions[tag.slug()].map(function (discussion) {
-                            return _this4.card(discussion);
+                            return Card.component({ discussion: discussion });
                         })))])]);
-                    }
-                }, {
-                    key: "card",
-                    value: function card(discussion) {
-                        var jumpTo = Math.min(discussion.lastPostNumber(), (discussion.readNumber() || 0) + 1);
-                        var isUnread = discussion.isUnread();
-                        var startUser = discussion.startUser();
-
-                        return m('li', {
-                            className: 'Card' + (isUnread ? ' Unread' : '')
-                        }, m('div', [m('div', { className: 'Card--Header' }, [
-                        // Issue title.
-                        m('div', { className: 'Card--Title' }, m(
-                            "a",
-                            { href: app.route.discussion(discussion, jumpTo),
-                                config: m.route },
-                            discussion.title()
-                        ))]), m('div', { className: 'Card--Footer' }, [m(
-                            "a",
-                            { href: startUser ? app.route.user(startUser) : '#',
-                                className: "Card--Author",
-                                config: function config(element) {
-                                    $(element).tooltip({ placement: 'right' });
-                                    m.route.apply(this, arguments);
-                                } },
-                            avatar(startUser, { title: '' })
-                        ),
-                        // Number of comments.
-                        m('div', [icon(isUnread ? 'commenting-o' : 'comment-o'), discussion[isUnread ? 'unreadCount' : 'repliesCount']()])])]));
                     }
                 }, {
                     key: "refresh",
                     value: function refresh() {
-                        var _this5 = this;
+                        var _this4 = this;
 
                         var clear = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
@@ -1180,21 +1170,21 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                         this.load().then(function (results) {
                             app.store.pushPayload(results);
 
-                            _this5.discussions = {};
-                            _this5.parseResults(results.data);
+                            _this4.discussions = {};
+                            _this4.parseResults(results.data);
                         }, function () {
-                            _this5.loading = false;
+                            _this4.loading = false;
                             m.redraw();
                         });
                     }
                 }, {
                     key: "parseResults",
                     value: function parseResults(results) {
-                        var _this6 = this;
+                        var _this5 = this;
 
                         this.tags.forEach(function (tag) {
 
-                            _this6.discussions[tag.slug()] = [];
+                            _this5.discussions[tag.slug()] = [];
 
                             results.forEach(function (discussion) {
                                 discussion = app.store.getById(discussion.type, discussion.id);
@@ -1202,7 +1192,7 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                                 if (discussion.tags().map(function (tag) {
                                     return tag.id();
                                 }).indexOf(tag.id()) != -1) {
-                                    _this6.discussions[tag.slug()].push(discussion);
+                                    _this5.discussions[tag.slug()].push(discussion);
                                 }
                             });
                         });
@@ -1224,7 +1214,7 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                 }, {
                     key: "setDraggable",
                     value: function setDraggable() {
-                        var _this7 = this;
+                        var _this6 = this;
 
                         if (this.draggable) {
                             sortable('.Board--List');
@@ -1239,7 +1229,7 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                                     return $(this).attr('slug');
                                 }).get();
 
-                                _this7.updateSorting(sorting);
+                                _this6.updateSorting(sorting);
                             });
                         }
 
@@ -1248,7 +1238,7 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                 }, {
                     key: "updateSorting",
                     value: function updateSorting(sorting) {
-                        var _this8 = this;
+                        var _this7 = this;
 
                         return app.request({
                             method: 'post',
@@ -1258,7 +1248,7 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                             app.store.pushPayload(results);
                             m.redraw();
 
-                            _this8.setDraggable();
+                            _this7.setDraggable();
                         });
                     }
                 }]);
@@ -1285,5 +1275,82 @@ System.register('flagrow/aqueduct/routes', ['flagrow/aqueduct/pages/Board'], fun
             Board = _flagrowAqueductPagesBoard.default;
         }],
         execute: function () {}
+    };
+});;
+'use strict';
+
+System.register('flagrow/aqueduct/components/Card', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/icon', 'flarum/helpers/avatar'], function (_export, _context) {
+    "use strict";
+
+    var Component, ItemList, icon, avatar, Card;
+    return {
+        setters: [function (_flarumComponent) {
+            Component = _flarumComponent.default;
+        }, function (_flarumUtilsItemList) {
+            ItemList = _flarumUtilsItemList.default;
+        }, function (_flarumHelpersIcon) {
+            icon = _flarumHelpersIcon.default;
+        }, function (_flarumHelpersAvatar) {
+            avatar = _flarumHelpersAvatar.default;
+        }],
+        execute: function () {
+            Card = function (_Component) {
+                babelHelpers.inherits(Card, _Component);
+
+                function Card() {
+                    babelHelpers.classCallCheck(this, Card);
+                    return babelHelpers.possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).apply(this, arguments));
+                }
+
+                babelHelpers.createClass(Card, [{
+                    key: 'init',
+                    value: function init() {
+                        this.discussion = this.props.discussion;
+                        this.isUnread = this.discussion.isUnread();
+                    }
+                }, {
+                    key: 'view',
+                    value: function view() {
+                        var jumpTo = Math.min(this.discussion.lastPostNumber(), (this.discussion.readNumber() || 0) + 1);
+
+                        return m('li', {
+                            className: 'Card' + (this.isUnread ? ' Unread' : '')
+                        }, m('div', [m('div', { className: 'Card--Header' }, [
+                        // Issue title.
+                        m('div', { className: 'Card--Title' }, m(
+                            'a',
+                            { href: app.route.discussion(this.discussion, jumpTo),
+                                config: m.route },
+                            this.discussion.title()
+                        ))]), m('div', { className: 'Card--Footer' }, this.footerControls().toArray())]));
+                    }
+                }, {
+                    key: 'footerControls',
+                    value: function footerControls() {
+                        var items = new ItemList();
+
+                        var startUser = this.discussion.startUser();
+
+                        items.add('startUser', m(
+                            'a',
+                            { href: startUser ? app.route.user(startUser) : '#',
+                                className: 'Card--Author',
+                                config: function config(element) {
+                                    $(element).tooltip({ placement: 'right' });
+                                    m.route.apply(this, arguments);
+                                } },
+                            avatar(startUser, { title: '' })
+                        ));
+
+                        items.add('count', m('div', [icon(this.isUnread ? 'commenting-o' : 'comment-o'), this.discussion[this.isUnread ? 'unreadCount' : 'repliesCount']()]));
+
+                        return items;
+                    }
+                }]);
+                return Card;
+            }(Component);
+
+            _export('default', Card);
+        }
     };
 });

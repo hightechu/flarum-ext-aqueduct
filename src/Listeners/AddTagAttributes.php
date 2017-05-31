@@ -21,6 +21,10 @@ class AddTagAttributes
                 'tag'.$event->model->id.'.discussion.flagrow.aqueduct.board-admin',
                 $event->model
             );
+            $event->attributes['canUseBoard'] = $event->actor->can(
+                'tag'.$event->model->id.'.discussion.flagrow.aqueduct.board-user',
+                $event->model
+            );
 
             // Inject the pivot information.
             if (isset($event->model->pivot)) {
@@ -32,6 +36,9 @@ class AddTagAttributes
         if ($event->isSerializer(ForumSerializer::class)) {
             $event->attributes['canManageBoard'] = $event->actor->can(
                 'discussion.flagrow.aqueduct.board-admin'
+            );
+            $event->attributes['canUseBoard'] = $event->actor->can(
+                'discussion.flagrow.aqueduct.board-user'
             );
         }
     }

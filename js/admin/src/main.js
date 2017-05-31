@@ -19,8 +19,16 @@ app.initializers.add('flagrow-aqueduct', app => {
         items.add('board-admin', {
             icon: 'trello',
             label: app.translator.trans('flagrow-aqueduct.admin.permissions.board-admin'),
-            permission: 'discussion.flagrow.aqueduct.board-admin',
-            allowGuest: true
+            permission: 'discussion.flagrow.aqueduct.board-admin'
+        });
+    });
+
+    extend(PermissionGrid.prototype, 'createItems', items => {
+        // participation on boards.
+        items.add('board-user', {
+            icon: 'trello',
+            label: app.translator.trans('flagrow-aqueduct.admin.permissions.board-user'),
+            permission: 'discussion.flagrow.aqueduct.board-user'
         });
     });
 });
