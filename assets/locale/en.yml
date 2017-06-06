@@ -9,6 +9,7 @@ flagrow-aqueduct:
         discussion:
             buttons:
                 show-board: "Board {tag}"
+                set-assignees: Set assignees
     admin:
         permissions:
             board-access: Access to boards

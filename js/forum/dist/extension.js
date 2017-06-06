@@ -738,12 +738,13 @@ return sortable;
 ;
 "use strict";
 
-System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "flarum/components/DiscussionPage", "flarum/components/Button", "flarum/components/SplitDropdown", "flarum/utils/ItemList"], function (_export, _context) {
+System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "flarum/components/DiscussionPage", "flarum/components/Button", "flarum/components/SplitDropdown", "flarum/utils/ItemList", "flarum/helpers/avatar", "flarum/helpers/icon", "flarum/components/DiscussionHero", "flagrow/aqueduct/labels/assigneesLabel"], function (_export, _context) {
     "use strict";
 
-    var extend, DiscussionPage, Button, SplitDropdown, ItemList;
+    var extend, DiscussionPage, Button, SplitDropdown, ItemList, avatar, icon, DiscussionHero, assigneesLabel;
 
     _export("default", function () {
+
         // Add a control allowing direct visiting of the board.
         extend(DiscussionPage.prototype, 'sidebarItems', function (items) {
             var discussion = this.discussion;
@@ -765,7 +766,7 @@ System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "fla
 
             if (tags.length > 0) {
                 controls.add('assignee', Button.component({
-                    children: null ? app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.update-assignee', { assignee: discussion.assignee().username }) : app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.set-assignee'),
+                    children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.set-assignees'),
                     icon: 'user-circle-o'
                 }));
 
@@ -775,6 +776,26 @@ System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "fla
                     className: 'App-primaryControl',
                     buttonClassName: 'Button--secondary'
                 }), -50);
+            }
+        });
+        /**
+         *
+         * Adds User labels on the discussion Hero.
+         */
+        extend(DiscussionHero.prototype, 'items', function (items) {
+            var discussion = this.props.discussion;
+
+            var users = discussion.assignedUsers().map(function (user) {
+                return avatar(user);
+            });
+            var groups = discussion.assignedGroups().map(function (group) {
+                return icon(group.icon());
+            });
+
+            var assignees = users + groups;
+
+            if (assignees.length > 0) {
+                items.add('assignees', assigneesLabel(assignees), 3);
             }
         });
     });
@@ -790,6 +811,14 @@ System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "fla
             SplitDropdown = _flarumComponentsSplitDropdown.default;
         }, function (_flarumUtilsItemList) {
             ItemList = _flarumUtilsItemList.default;
+        }, function (_flarumHelpersAvatar) {
+            avatar = _flarumHelpersAvatar.default;
+        }, function (_flarumHelpersIcon) {
+            icon = _flarumHelpersIcon.default;
+        }, function (_flarumComponentsDiscussionHero) {
+            DiscussionHero = _flarumComponentsDiscussionHero.default;
+        }, function (_flagrowAqueductLabelsAssigneesLabel) {
+            assigneesLabel = _flagrowAqueductLabelsAssigneesLabel.default;
         }],
         execute: function () {}
     };
@@ -873,6 +902,96 @@ System.register('flagrow/aqueduct/components/Card', ['flarum/Component', 'flarum
 });;
 'use strict';
 
+System.register('flagrow/aqueduct/labels/assigneeLabel', ['flarum/utils/extract', 'flarum/helpers/username', 'flarum/models/User', 'flarum/models/Group'], function (_export, _context) {
+    "use strict";
+
+    var extract, username, User, Group;
+    function assigneeLabel(recipient) {
+        var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+        attrs.style = attrs.style || {};
+        attrs.className = 'RecipientLabel ' + (attrs.className || '');
+
+        var link = extract(attrs, 'link');
+
+        var label;
+
+        if (recipient instanceof User) {
+            label = username(recipient);
+
+            if (link) {
+                attrs.title = recipient.username() || '';
+                attrs.href = app.route.user(recipient);
+                attrs.config = m.route;
+            }
+        } else if (recipient instanceof Group) {
+            label = recipient.namePlural();
+        }
+
+        return m(link ? 'a' : 'span', attrs, m(
+            'span',
+            { className: 'RecipientLabel-text' },
+            label
+        ));
+    }
+
+    _export('default', assigneeLabel);
+
+    return {
+        setters: [function (_flarumUtilsExtract) {
+            extract = _flarumUtilsExtract.default;
+        }, function (_flarumHelpersUsername) {
+            username = _flarumHelpersUsername.default;
+        }, function (_flarumModelsUser) {
+            User = _flarumModelsUser.default;
+        }, function (_flarumModelsGroup) {
+            Group = _flarumModelsGroup.default;
+        }],
+        execute: function () {}
+    };
+});;
+'use strict';
+
+System.register('flagrow/aqueduct/labels/assigneesLabel', ['flarum/utils/extract', 'flagrow/aqueduct/labels/assigneeLabel'], function (_export, _context) {
+    "use strict";
+
+    var extract, assigneeLabel;
+    function assigneesLabel(assignees) {
+        var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+        var children = [];
+        var link = extract(attrs, 'link');
+
+        attrs.className = 'AssigneesLabel ' + (attrs.className || '');
+
+        if (assignees) {
+            assignees.forEach(function (assignee) {
+                children.push(assigneeLabel(assignee, { link: link }));
+            });
+        } else {
+            children.push(assigneeLabel());
+        }
+
+        return m(
+            'span',
+            attrs,
+            children
+        );
+    }
+
+    _export('default', assigneesLabel);
+
+    return {
+        setters: [function (_flarumUtilsExtract) {
+            extract = _flarumUtilsExtract.default;
+        }, function (_flagrowAqueductLabelsAssigneeLabel) {
+            assigneeLabel = _flagrowAqueductLabelsAssigneeLabel.default;
+        }],
+        execute: function () {}
+    };
+});;
+'use strict';
+
 System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/routes', 'flagrow/aqueduct/addsBoardToDiscussion', 'flarum/Model', 'flarum/tags/models/Tag', 'flarum/models/Discussion'], function (_export, _context) {
     "use strict";
 
@@ -900,8 +1019,8 @@ System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/rou
                 Tag.prototype.board_sort = Model.attribute('board_sort') || null;
                 Tag.prototype.board_max_items = Model.attribute('board_max_items') || null;
 
-                Discussion.prototype.assignedUsers = Model.hasMany('assignedUsers') || [];
-                Discussion.prototype.assignedGroups = Model.hasMany('assignedGroups') || [];
+                Discussion.prototype.assignedUsers = Model.hasMany('assignedUsers');
+                Discussion.prototype.assignedGroups = Model.hasMany('assignedGroups');
 
                 routes(app);
 

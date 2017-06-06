@@ -3,8 +3,13 @@ import DiscussionPage from "flarum/components/DiscussionPage";
 import Button from "flarum/components/Button";
 import SplitDropdown from "flarum/components/SplitDropdown";
 import ItemList from "flarum/utils/ItemList";
+import avatar from "flarum/helpers/avatar";
+import icon from "flarum/helpers/icon";
+import DiscussionHero from "flarum/components/DiscussionHero";
+import assigneesLabel from "flagrow/aqueduct/labels/assigneesLabel";
 
 export default function () {
+
     // Add a control allowing direct visiting of the board.
     extend(DiscussionPage.prototype, 'sidebarItems', function (items) {
         const discussion = this.discussion;
@@ -22,9 +27,7 @@ export default function () {
 
         if (tags.length > 0) {
             controls.add('assignee', Button.component({
-                children: null ?
-                    app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.update-assignee', {assignee: discussion.assignee().username}) :
-                    app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.set-assignee'),
+                children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.set-assignees'),
                 icon: 'user-circle-o'
             }));
 
@@ -38,6 +41,26 @@ export default function () {
                 }),
                 -50
             );
+        }
+    });
+    /**
+     *
+     * Adds User labels on the discussion Hero.
+     */
+    extend(DiscussionHero.prototype, 'items', function(items) {
+        const discussion = this.props.discussion;
+
+        let users = discussion.assignedUsers().map(user => {
+            return avatar(user);
+        });
+        let groups = discussion.assignedGroups().map(group => {
+            return icon(group.icon());
+        });
+
+        const assignees = users + groups;
+
+        if (assignees.length > 0) {
+            items.add('assignees', assigneesLabel(assignees), 3);
         }
     });
 }

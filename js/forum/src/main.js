@@ -14,8 +14,8 @@ app.initializers.add('flagrow-aqueduct', function(app) {
     Tag.prototype.board_sort = Model.attribute('board_sort') || null;
     Tag.prototype.board_max_items = Model.attribute('board_max_items') || null;
 
-    Discussion.prototype.assignedUsers = Model.hasMany('assignedUsers') || [];
-    Discussion.prototype.assignedGroups = Model.hasMany('assignedGroups') || [];
+    Discussion.prototype.assignedUsers = Model.hasMany('assignedUsers');
+    Discussion.prototype.assignedGroups = Model.hasMany('assignedGroups');
 
     routes(app);
 
