@@ -765,7 +765,7 @@ System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "fla
 
             if (tags.length > 0) {
                 controls.add('assignee', Button.component({
-                    children: discussion.assignee() ? app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.update-assignee', { assignee: discussion.assignee().username }) : app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.set-assignee'),
+                    children: null ? app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.update-assignee', { assignee: discussion.assignee().username }) : app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.set-assignee'),
                     icon: 'user-circle-o'
                 }));
 
@@ -796,10 +796,87 @@ System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "fla
 });;
 'use strict';
 
-System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/routes', 'flagrow/aqueduct/addsBoardToDiscussion', 'flarum/Model', 'flarum/tags/models/Tag'], function (_export, _context) {
+System.register('flagrow/aqueduct/components/Card', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/icon', 'flarum/helpers/avatar'], function (_export, _context) {
     "use strict";
 
-    var extend, routes, addsBoardToDiscussion, Model, Tag;
+    var Component, ItemList, icon, avatar, Card;
+    return {
+        setters: [function (_flarumComponent) {
+            Component = _flarumComponent.default;
+        }, function (_flarumUtilsItemList) {
+            ItemList = _flarumUtilsItemList.default;
+        }, function (_flarumHelpersIcon) {
+            icon = _flarumHelpersIcon.default;
+        }, function (_flarumHelpersAvatar) {
+            avatar = _flarumHelpersAvatar.default;
+        }],
+        execute: function () {
+            Card = function (_Component) {
+                babelHelpers.inherits(Card, _Component);
+
+                function Card() {
+                    babelHelpers.classCallCheck(this, Card);
+                    return babelHelpers.possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).apply(this, arguments));
+                }
+
+                babelHelpers.createClass(Card, [{
+                    key: 'init',
+                    value: function init() {
+                        this.discussion = this.props.discussion;
+                        this.isUnread = this.discussion.isUnread();
+                    }
+                }, {
+                    key: 'view',
+                    value: function view() {
+                        var jumpTo = Math.min(this.discussion.lastPostNumber(), (this.discussion.readNumber() || 0) + 1);
+
+                        return m('li', {
+                            className: 'Card' + (this.isUnread ? ' Unread' : '')
+                        }, m('div', [m('div', { className: 'Card--Header' }, [
+                        // Issue title.
+                        m('div', { className: 'Card--Title' }, m(
+                            'a',
+                            { href: app.route.discussion(this.discussion, jumpTo),
+                                config: m.route },
+                            this.discussion.title()
+                        ))]), m('div', { className: 'Card--Footer' }, this.footerControls().toArray())]));
+                    }
+                }, {
+                    key: 'footerControls',
+                    value: function footerControls() {
+                        var items = new ItemList();
+
+                        var startUser = this.discussion.startUser();
+
+                        items.add('startUser', m(
+                            'a',
+                            { href: startUser ? app.route.user(startUser) : '#',
+                                className: 'Card--Author',
+                                config: function config(element) {
+                                    $(element).tooltip({ placement: 'right' });
+                                    m.route.apply(this, arguments);
+                                } },
+                            avatar(startUser, { title: '' })
+                        ));
+
+                        items.add('count', m('div', [icon(this.isUnread ? 'commenting-o' : 'comment-o'), this.discussion[this.isUnread ? 'unreadCount' : 'repliesCount']()]));
+
+                        return items;
+                    }
+                }]);
+                return Card;
+            }(Component);
+
+            _export('default', Card);
+        }
+    };
+});;
+'use strict';
+
+System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/routes', 'flagrow/aqueduct/addsBoardToDiscussion', 'flarum/Model', 'flarum/tags/models/Tag', 'flarum/models/Discussion'], function (_export, _context) {
+    "use strict";
+
+    var extend, routes, addsBoardToDiscussion, Model, Tag, Discussion;
     return {
         setters: [function (_flarumExtend) {
             extend = _flarumExtend.extend;
@@ -811,6 +888,8 @@ System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/rou
             Model = _flarumModel.default;
         }, function (_flarumTagsModelsTag) {
             Tag = _flarumTagsModelsTag.default;
+        }, function (_flarumModelsDiscussion) {
+            Discussion = _flarumModelsDiscussion.default;
         }],
         execute: function () {
 
@@ -820,6 +899,9 @@ System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/rou
                 Tag.prototype.columns = Model.hasMany('columns');
                 Tag.prototype.board_sort = Model.attribute('board_sort') || null;
                 Tag.prototype.board_max_items = Model.attribute('board_max_items') || null;
+
+                Discussion.prototype.assignedUsers = Model.hasMany('assignedUsers') || [];
+                Discussion.prototype.assignedGroups = Model.hasMany('assignedGroups') || [];
 
                 routes(app);
 
@@ -1275,82 +1357,5 @@ System.register('flagrow/aqueduct/routes', ['flagrow/aqueduct/pages/Board'], fun
             Board = _flagrowAqueductPagesBoard.default;
         }],
         execute: function () {}
-    };
-});;
-'use strict';
-
-System.register('flagrow/aqueduct/components/Card', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/icon', 'flarum/helpers/avatar'], function (_export, _context) {
-    "use strict";
-
-    var Component, ItemList, icon, avatar, Card;
-    return {
-        setters: [function (_flarumComponent) {
-            Component = _flarumComponent.default;
-        }, function (_flarumUtilsItemList) {
-            ItemList = _flarumUtilsItemList.default;
-        }, function (_flarumHelpersIcon) {
-            icon = _flarumHelpersIcon.default;
-        }, function (_flarumHelpersAvatar) {
-            avatar = _flarumHelpersAvatar.default;
-        }],
-        execute: function () {
-            Card = function (_Component) {
-                babelHelpers.inherits(Card, _Component);
-
-                function Card() {
-                    babelHelpers.classCallCheck(this, Card);
-                    return babelHelpers.possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).apply(this, arguments));
-                }
-
-                babelHelpers.createClass(Card, [{
-                    key: 'init',
-                    value: function init() {
-                        this.discussion = this.props.discussion;
-                        this.isUnread = this.discussion.isUnread();
-                    }
-                }, {
-                    key: 'view',
-                    value: function view() {
-                        var jumpTo = Math.min(this.discussion.lastPostNumber(), (this.discussion.readNumber() || 0) + 1);
-
-                        return m('li', {
-                            className: 'Card' + (this.isUnread ? ' Unread' : '')
-                        }, m('div', [m('div', { className: 'Card--Header' }, [
-                        // Issue title.
-                        m('div', { className: 'Card--Title' }, m(
-                            'a',
-                            { href: app.route.discussion(this.discussion, jumpTo),
-                                config: m.route },
-                            this.discussion.title()
-                        ))]), m('div', { className: 'Card--Footer' }, this.footerControls().toArray())]));
-                    }
-                }, {
-                    key: 'footerControls',
-                    value: function footerControls() {
-                        var items = new ItemList();
-
-                        var startUser = this.discussion.startUser();
-
-                        items.add('startUser', m(
-                            'a',
-                            { href: startUser ? app.route.user(startUser) : '#',
-                                className: 'Card--Author',
-                                config: function config(element) {
-                                    $(element).tooltip({ placement: 'right' });
-                                    m.route.apply(this, arguments);
-                                } },
-                            avatar(startUser, { title: '' })
-                        ));
-
-                        items.add('count', m('div', [icon(this.isUnread ? 'commenting-o' : 'comment-o'), this.discussion[this.isUnread ? 'unreadCount' : 'repliesCount']()]));
-
-                        return items;
-                    }
-                }]);
-                return Card;
-            }(Component);
-
-            _export('default', Card);
-        }
     };
 });

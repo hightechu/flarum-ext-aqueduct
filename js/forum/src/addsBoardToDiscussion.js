@@ -22,7 +22,7 @@ export default function () {
 
         if (tags.length > 0) {
             controls.add('assignee', Button.component({
-                children: discussion.assignee() ?
+                children: null ?
                     app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.update-assignee', {assignee: discussion.assignee().username}) :
                     app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.set-assignee'),
                 icon: 'user-circle-o'
