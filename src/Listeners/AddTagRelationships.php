@@ -26,7 +26,7 @@ class AddTagRelationships
         if ($event->isRelationship(Tag::class, 'columns')) {
             return $event->model->belongsToMany(
                 Tag::class,
-                'flagrow_board_columns',
+                'aqueduct_board_columns',
                 'board_tag_id',
                 'column_tag_id'
             )->withPivot([

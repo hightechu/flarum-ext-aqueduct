@@ -7,6 +7,7 @@ import avatar from "flarum/helpers/avatar";
 import icon from "flarum/helpers/icon";
 import DiscussionHero from "flarum/components/DiscussionHero";
 import assigneesLabel from "flagrow/aqueduct/labels/assigneesLabel";
+import AddAssigneeModal from "flagrow/aqueduct/modals/AddAssigneeModal";
 
 export default function () {
 
@@ -26,10 +27,13 @@ export default function () {
         })
 
         if (tags.length > 0) {
-            controls.add('assignee', Button.component({
-                children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.set-assignees'),
-                icon: 'user-circle-o'
-            }));
+            if (discussion.canManageBoard()) {
+                controls.add('assignee', Button.component({
+                    children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.set-assignees'),
+                    icon: 'user-circle-o',
+                    onclick: () => app.modal.show(new AddAssigneeModal({discussion}))
+                }));
+            }
 
             items.add(
                 'board',

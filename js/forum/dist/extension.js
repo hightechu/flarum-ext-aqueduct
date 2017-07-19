@@ -738,10 +738,10 @@ return sortable;
 ;
 "use strict";
 
-System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "flarum/components/DiscussionPage", "flarum/components/Button", "flarum/components/SplitDropdown", "flarum/utils/ItemList", "flarum/helpers/avatar", "flarum/helpers/icon", "flarum/components/DiscussionHero", "flagrow/aqueduct/labels/assigneesLabel"], function (_export, _context) {
+System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "flarum/components/DiscussionPage", "flarum/components/Button", "flarum/components/SplitDropdown", "flarum/utils/ItemList", "flarum/helpers/avatar", "flarum/helpers/icon", "flarum/components/DiscussionHero", "flagrow/aqueduct/labels/assigneesLabel", "flagrow/aqueduct/modals/AddAssigneeModal"], function (_export, _context) {
     "use strict";
 
-    var extend, DiscussionPage, Button, SplitDropdown, ItemList, avatar, icon, DiscussionHero, assigneesLabel;
+    var extend, DiscussionPage, Button, SplitDropdown, ItemList, avatar, icon, DiscussionHero, assigneesLabel, AddAssigneeModal;
 
     _export("default", function () {
 
@@ -765,10 +765,15 @@ System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "fla
             });
 
             if (tags.length > 0) {
-                controls.add('assignee', Button.component({
-                    children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.set-assignees'),
-                    icon: 'user-circle-o'
-                }));
+                if (discussion.canManageBoard()) {
+                    controls.add('assignee', Button.component({
+                        children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.set-assignees'),
+                        icon: 'user-circle-o',
+                        onclick: function onclick() {
+                            return app.modal.show(new AddAssigneeModal({ discussion: discussion }));
+                        }
+                    }));
+                }
 
                 items.add('board', SplitDropdown.component({
                     children: controls.toArray(),
@@ -819,6 +824,8 @@ System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "fla
             DiscussionHero = _flarumComponentsDiscussionHero.default;
         }, function (_flagrowAqueductLabelsAssigneesLabel) {
             assigneesLabel = _flagrowAqueductLabelsAssigneesLabel.default;
+        }, function (_flagrowAqueductModalsAddAssigneeModal) {
+            AddAssigneeModal = _flagrowAqueductModalsAddAssigneeModal.default;
         }],
         execute: function () {}
     };
@@ -1019,6 +1026,9 @@ System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/rou
                 Tag.prototype.board_sort = Model.attribute('board_sort') || null;
                 Tag.prototype.board_max_items = Model.attribute('board_max_items') || null;
 
+                Discussion.prototype.canViewBoard = Model.hasMany('canViewBoard');
+                Discussion.prototype.canUseBoard = Model.hasMany('canUseBoard');
+                Discussion.prototype.canManageBoard = Model.attribute('canManageBoard');
                 Discussion.prototype.assignedUsers = Model.hasMany('assignedUsers');
                 Discussion.prototype.assignedGroups = Model.hasMany('assignedGroups');
 
@@ -1026,6 +1036,162 @@ System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/rou
 
                 addsBoardToDiscussion();
             });
+        }
+    };
+});;
+"use strict";
+
+System.register("flagrow/aqueduct/modals/AddAssigneeModal", ["flarum/components/Modal", "flarum/components/DiscussionPage", "flarum/components/Button", "flarum/utils/ItemList", "flagrow/aqueduct/search/RecipientSearch", "flarum/models/User", "flarum/models/Group"], function (_export, _context) {
+    "use strict";
+
+    var Modal, DiscussionPage, Button, ItemList, RecipientSearch, User, Group, AddAssigneeModal;
+    return {
+        setters: [function (_flarumComponentsModal) {
+            Modal = _flarumComponentsModal.default;
+        }, function (_flarumComponentsDiscussionPage) {
+            DiscussionPage = _flarumComponentsDiscussionPage.default;
+        }, function (_flarumComponentsButton) {
+            Button = _flarumComponentsButton.default;
+        }, function (_flarumUtilsItemList) {
+            ItemList = _flarumUtilsItemList.default;
+        }, function (_flagrowAqueductSearchRecipientSearch) {
+            RecipientSearch = _flagrowAqueductSearchRecipientSearch.default;
+        }, function (_flarumModelsUser) {
+            User = _flarumModelsUser.default;
+        }, function (_flarumModelsGroup) {
+            Group = _flarumModelsGroup.default;
+        }],
+        execute: function () {
+            AddAssigneeModal = function (_Modal) {
+                babelHelpers.inherits(AddAssigneeModal, _Modal);
+
+                function AddAssigneeModal() {
+                    babelHelpers.classCallCheck(this, AddAssigneeModal);
+                    return babelHelpers.possibleConstructorReturn(this, (AddAssigneeModal.__proto__ || Object.getPrototypeOf(AddAssigneeModal)).apply(this, arguments));
+                }
+
+                babelHelpers.createClass(AddAssigneeModal, [{
+                    key: "init",
+                    value: function init() {
+                        babelHelpers.get(AddAssigneeModal.prototype.__proto__ || Object.getPrototypeOf(AddAssigneeModal.prototype), "init", this).call(this);
+
+                        this.selected = m.prop(new ItemList());
+
+                        if (this.props.discussion) {
+                            // Adds recipients of the currently viewed discussion.
+                            this.assignInitialRecipients(this.props.discussion);
+                        } else if (this.props.assignees) {
+                            // Adds previously selected recipients.
+                            this.selected().merge(this.props.assignees);
+                        }
+
+                        this.recipientSearch = RecipientSearch.component({
+                            selected: this.selected,
+                            discussion: this.props.discussion
+                        });
+                    }
+                }, {
+                    key: "assignInitialRecipients",
+                    value: function assignInitialRecipients(discussion) {
+                        var _this2 = this;
+
+                        discussion.assignedUsers().map(function (user) {
+                            _this2.selected().add("users:" + user.id(), user);
+                        });
+                        discussion.assignedGroups().map(function (group) {
+                            _this2.selected().add("groups:" + group.id(), group);
+                        });
+                    }
+                }, {
+                    key: "className",
+                    value: function className() {
+                        return 'AddAssigneeModal';
+                    }
+                }, {
+                    key: "title",
+                    value: function title() {
+                        return this.props.discussion ? app.translator.trans('flagrow-aqueduct.forum.modal.titles.update_recipients', { title: m(
+                                "em",
+                                null,
+                                this.props.discussion.title()
+                            ) }) : app.translator.trans('flagrow-aqueduct.forum.modal.titles.add_recipients');
+                    }
+                }, {
+                    key: "content",
+                    value: function content() {
+                        return [m(
+                            "div",
+                            { className: "Modal-body" },
+                            m(
+                                "div",
+                                { className: "AddAssigneeModal-form" },
+                                this.recipientSearch,
+                                m(
+                                    "div",
+                                    { className: "AddAssigneeModal-form-submit App-primaryControl" },
+                                    Button.component({
+                                        type: 'submit',
+                                        className: 'Button Button--primary',
+                                        disabled: false,
+                                        icon: 'check',
+                                        children: app.translator.trans('flagrow-aqueduct.forum.buttons.submit')
+                                    })
+                                )
+                            )
+                        )];
+                    }
+                }, {
+                    key: "select",
+                    value: function select(e) {
+                        // Ctrl + Enter submits the selection, just Enter completes the current entry
+                        if (e.metaKey || e.ctrlKey || this.selected.indexOf(this.index) !== -1) {
+                            if (this.selected().length) {
+                                this.$('form').submit();
+                            }
+                        }
+                    }
+                }, {
+                    key: "onsubmit",
+                    value: function onsubmit(e) {
+                        e.preventDefault();
+
+                        var discussion = this.props.discussion;
+                        var recipients = this.selected();
+
+                        var recipientGroups = [];
+                        var recipientUsers = [];
+
+                        recipients.toArray().forEach(function (recipient) {
+
+                            if (recipient instanceof User) {
+                                recipientUsers.push(recipient);
+                            }
+
+                            if (recipient instanceof Group) {
+                                recipientGroups.push(recipient);
+                            }
+                        });
+
+                        if (discussion) {
+                            discussion.save({ relationships: { recipientUsers: recipientUsers, recipientGroups: recipientGroups } }).then(function () {
+                                if (app.current instanceof DiscussionPage) {
+                                    app.current.stream.update();
+                                }
+                                m.redraw();
+                            });
+                        }
+
+                        if (this.props.onsubmit) this.props.onsubmit(recipients, recipientUsers, recipientGroups);
+
+                        app.modal.close();
+
+                        m.redraw.strategy('none');
+                    }
+                }]);
+                return AddAssigneeModal;
+            }(Modal);
+
+            _export("default", AddAssigneeModal);
         }
     };
 });;
@@ -1476,5 +1642,310 @@ System.register('flagrow/aqueduct/routes', ['flagrow/aqueduct/pages/Board'], fun
             Board = _flagrowAqueductPagesBoard.default;
         }],
         execute: function () {}
+    };
+});;
+"use strict";
+
+System.register("flagrow/aqueduct/search/RecipientSearch", ["flarum/components/Search", "flagrow/aqueduct/search/sources/UserSearchSource", "flagrow/aqueduct/search/sources/GroupSearchSource", "flarum/utils/ItemList", "flarum/utils/classList", "flarum/utils/extractText", "flarum/components/LoadingIndicator", "flagrow/aqueduct/helpers/assigneeLabel", "flarum/models/User", "flarum/models/Group"], function (_export, _context) {
+    "use strict";
+
+    var Search, UserSearchSource, GroupSearchSource, ItemList, classList, extractText, LoadingIndicator, recipientLabel, User, Group, RecipientSearch;
+    return {
+        setters: [function (_flarumComponentsSearch) {
+            Search = _flarumComponentsSearch.default;
+        }, function (_flagrowAqueductSearchSourcesUserSearchSource) {
+            UserSearchSource = _flagrowAqueductSearchSourcesUserSearchSource.default;
+        }, function (_flagrowAqueductSearchSourcesGroupSearchSource) {
+            GroupSearchSource = _flagrowAqueductSearchSourcesGroupSearchSource.default;
+        }, function (_flarumUtilsItemList) {
+            ItemList = _flarumUtilsItemList.default;
+        }, function (_flarumUtilsClassList) {
+            classList = _flarumUtilsClassList.default;
+        }, function (_flarumUtilsExtractText) {
+            extractText = _flarumUtilsExtractText.default;
+        }, function (_flarumComponentsLoadingIndicator) {
+            LoadingIndicator = _flarumComponentsLoadingIndicator.default;
+        }, function (_flagrowAqueductHelpersAssigneeLabel) {
+            recipientLabel = _flagrowAqueductHelpersAssigneeLabel.default;
+        }, function (_flarumModelsUser) {
+            User = _flarumModelsUser.default;
+        }, function (_flarumModelsGroup) {
+            Group = _flarumModelsGroup.default;
+        }],
+        execute: function () {
+            RecipientSearch = function (_Search) {
+                babelHelpers.inherits(RecipientSearch, _Search);
+
+                function RecipientSearch() {
+                    babelHelpers.classCallCheck(this, RecipientSearch);
+                    return babelHelpers.possibleConstructorReturn(this, (RecipientSearch.__proto__ || Object.getPrototypeOf(RecipientSearch)).apply(this, arguments));
+                }
+
+                babelHelpers.createClass(RecipientSearch, [{
+                    key: "config",
+                    value: function config(isInitialized) {
+                        var _this2 = this;
+
+                        if (isInitialized) return;
+
+                        var $search = this;
+
+                        this.$('.Search-results').on('click', function (e) {
+                            var target = _this2.$('.SearchResult.active');
+
+                            $search.addRecipient(target.data('index'));
+
+                            $search.$('.RecipientsInput').focus();
+                        });
+
+                        this.$('.Search-results').on('touchstart', function (e) {
+                            var target = _this2.$(e.target.parentNode);
+
+                            $search.addRecipient(target.data('index'));
+
+                            $search.$('.RecipientsInput').focus();
+                        });
+
+                        babelHelpers.get(RecipientSearch.prototype.__proto__ || Object.getPrototypeOf(RecipientSearch.prototype), "config", this).call(this, isInitialized);
+                    }
+                }, {
+                    key: "view",
+                    value: function view() {
+                        var _this3 = this;
+
+                        if (typeof this.value() === 'undefined') {
+                            this.value('');
+                        }
+
+                        return m('div', {
+                            className: 'AddRecipientModal-form-input'
+                        }, [m('div', {
+                            className: 'RecipientsInput-selected RecipientsLabel'
+                        }, this.props.selected().toArray().map(function (recipient) {
+                            return recipientLabel(recipient, {
+                                onclick: function onclick() {
+                                    _this3.removeRecipient(recipient);
+                                }
+                            });
+                        })), m('input', {
+                            className: 'RecipientsInput FormControl ' + classList({
+                                open: !!this.value(),
+                                focused: !!this.value(),
+                                active: !!this.value(),
+                                loading: !!this.loadingSources
+                            }),
+                            config: function config(element) {
+                                element.focus();
+                            },
+                            type: 'search',
+                            placeholder: extractText(app.translator.trans('flagrow-aqueduct.forum.input.search_recipients')),
+                            value: this.value(),
+                            oninput: m.withAttr('value', this.value),
+                            onfocus: function onfocus() {
+                                return _this3.hasFocus = true;
+                            },
+                            onblur: function onblur() {
+                                return _this3.hasFocus = false;
+                            }
+                        }), m('ul', {
+                            className: 'Dropdown-menu Search-results'
+                        }, this.value() && this.value().length >= 3 ? this.sources.map(function (source) {
+                            return source.view(_this3.value());
+                        }) : LoadingIndicator.component({ size: 'tiny', className: 'Button Button--icon Button--link' }))]);
+                    }
+                }, {
+                    key: "sourceItems",
+                    value: function sourceItems() {
+                        var items = new ItemList();
+
+                        // Add user source based on permissions.
+                        items.add('users', new UserSearchSource());
+
+                        // Add group source based on permissions.
+                        items.add('groups', new GroupSearchSource());
+
+                        return items;
+                    }
+                }, {
+                    key: "clear",
+                    value: function clear() {
+                        this.value('');
+
+                        m.redraw();
+                    }
+                }, {
+                    key: "addRecipient",
+                    value: function addRecipient(value) {
+
+                        var values = value.split(':'),
+                            type = values[0],
+                            id = values[1];
+
+                        var recipient = this.findRecipient(type, id);
+
+                        this.props.selected().add(value, recipient);
+
+                        this.clear();
+                    }
+                }, {
+                    key: "removeRecipient",
+                    value: function removeRecipient(recipient) {
+                        var type;
+
+                        if (recipient instanceof User) {
+                            type = 'users';
+                        }
+                        if (recipient instanceof Group) {
+                            type = 'groups';
+                        }
+
+                        this.props.selected().remove(type + ":" + recipient.id());
+
+                        m.redraw();
+                    }
+                }, {
+                    key: "findRecipient",
+                    value: function findRecipient(store, id) {
+                        return app.store.getById(store, id);
+                    }
+                }]);
+                return RecipientSearch;
+            }(Search);
+
+            _export("default", RecipientSearch);
+        }
+    };
+});;
+'use strict';
+
+System.register('flagrow/aqueduct/search/sources/GroupSearchSource', ['flarum/helpers/highlight'], function (_export, _context) {
+    "use strict";
+
+    var highlight, GroupSearchSource;
+    return {
+        setters: [function (_flarumHelpersHighlight) {
+            highlight = _flarumHelpersHighlight.default;
+        }],
+        execute: function () {
+            GroupSearchSource = function () {
+                function GroupSearchSource() {
+                    babelHelpers.classCallCheck(this, GroupSearchSource);
+                }
+
+                babelHelpers.createClass(GroupSearchSource, [{
+                    key: 'search',
+                    value: function search(query) {
+                        return app.store.find('groups', {
+                            filter: { q: query },
+                            page: { limit: 5 }
+                        });
+                    }
+                }, {
+                    key: 'view',
+                    value: function view(query) {
+                        query = query.toLowerCase();
+
+                        var results = app.store.all('groups').filter(function (group) {
+                            return group.namePlural().toLowerCase().substr(0, query.length) === query;
+                        });
+
+                        if (!results.length) return '';
+
+                        return [m(
+                            'li',
+                            { className: 'Dropdown-header' },
+                            app.translator.trans('flagrow-byobu.forum.search.headings.groups')
+                        ), results.map(function (group) {
+                            var groupName = group.namePlural();
+                            var name = highlight(groupName, query);
+
+                            return m(
+                                'li',
+                                { className: 'SearchResult', 'data-index': 'groups:' + group.id() },
+                                m(
+                                    'a',
+                                    { 'data-index': 'groups:' + group.id() },
+                                    m(
+                                        'span',
+                                        { 'class': 'groupName' },
+                                        name
+                                    )
+                                )
+                            );
+                        })];
+                    }
+                }]);
+                return GroupSearchSource;
+            }();
+
+            _export('default', GroupSearchSource);
+        }
+    };
+});;
+'use strict';
+
+System.register('flagrow/aqueduct/search/sources/UserSearchSource', ['flarum/helpers/highlight', 'flarum/helpers/avatar', 'flarum/helpers/username'], function (_export, _context) {
+    "use strict";
+
+    var highlight, avatar, username, UserSearchSource;
+    return {
+        setters: [function (_flarumHelpersHighlight) {
+            highlight = _flarumHelpersHighlight.default;
+        }, function (_flarumHelpersAvatar) {
+            avatar = _flarumHelpersAvatar.default;
+        }, function (_flarumHelpersUsername) {
+            username = _flarumHelpersUsername.default;
+        }],
+        execute: function () {
+            UserSearchSource = function () {
+                function UserSearchSource() {
+                    babelHelpers.classCallCheck(this, UserSearchSource);
+                }
+
+                babelHelpers.createClass(UserSearchSource, [{
+                    key: 'search',
+                    value: function search(query) {
+                        return app.store.find('users', {
+                            filter: { q: query },
+                            page: { limit: 5 }
+                        });
+                    }
+                }, {
+                    key: 'view',
+                    value: function view(query) {
+                        query = query.toLowerCase();
+
+                        var results = app.store.all('users').filter(function (user) {
+                            return user.username().toLowerCase().substr(0, query.length) === query;
+                        });
+
+                        if (!results.length) return '';
+
+                        return [m(
+                            'li',
+                            { className: 'Dropdown-header' },
+                            app.translator.trans('core.forum.search.users_heading')
+                        ), results.map(function (user) {
+                            var name = username(user);
+                            name.children[0] = highlight(name.children[0], query);
+
+                            return m(
+                                'li',
+                                { className: 'SearchResult', 'data-index': 'users:' + user.id() },
+                                m(
+                                    'a',
+                                    { 'data-index': 'users:' + user.id() },
+                                    avatar(user),
+                                    name
+                                )
+                            );
+                        })];
+                    }
+                }]);
+                return UserSearchSource;
+            }();
+
+            _export('default', UserSearchSource);
+        }
     };
 });

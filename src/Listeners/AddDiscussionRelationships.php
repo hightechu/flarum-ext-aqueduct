@@ -12,6 +12,7 @@ use Flarum\Core\User;
 use Flarum\Event\ConfigureApiController;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\GetModelRelationship;
+use Flarum\Event\PrepareApiAttributes;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddDiscussionRelationships
@@ -24,6 +25,8 @@ class AddDiscussionRelationships
         $events->listen(GetModelRelationship::class, [$this, 'onModel']);
         $events->listen(GetApiRelationship::class, [$this, 'onApi']);
         $events->listen(ConfigureApiController::class, [$this, 'onController']);
+
+        $events->listen(PrepareApiAttributes::class, [$this, 'addPermissions']);
     }
 
     /**
@@ -35,14 +38,14 @@ class AddDiscussionRelationships
         if ($event->isRelationship(Discussion::class, 'assignedUsers')) {
             return $event->model->belongsToMany(
                 User::class,
-                'flagrow_assignees'
+                'aqueduct_assignees'
             );
         }
 
         if ($event->isRelationship(Discussion::class, 'assignedGroups')) {
             return $event->model->belongsToMany(
                 Group::class,
-                'flagrow_assignees'
+                'aqueduct_assignees'
             );
         }
     }
@@ -71,6 +74,18 @@ class AddDiscussionRelationships
             $event->addInclude([
                 'assignedUsers', 'assignedGroups'
             ]);
+        }
+    }
+
+    /**
+     * @param PrepareApiAttributes $event
+     */
+    public function addPermissions(PrepareApiAttributes $event)
+    {
+        if ($event->isSerializer(DiscussionSerializer::class)) {
+            $event->attributes['canViewBoard'] = $event->actor->can('discussion.flagrow.aqueduct.board-access', $event->model);
+            $event->attributes['canUseBoard'] = $event->actor->can('discussion.flagrow.aqueduct.board-user', $event->model);
+            $event->attributes['canManageBoard'] = $event->actor->can('discussion.flagrow.aqueduct.board-admin', $event->model);
         }
     }
 }
