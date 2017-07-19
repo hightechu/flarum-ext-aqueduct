@@ -1041,10 +1041,10 @@ System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/rou
 });;
 "use strict";
 
-System.register("flagrow/aqueduct/modals/AddAssigneeModal", ["flarum/components/Modal", "flarum/components/DiscussionPage", "flarum/components/Button", "flarum/utils/ItemList", "flagrow/aqueduct/search/RecipientSearch", "flarum/models/User", "flarum/models/Group"], function (_export, _context) {
+System.register("flagrow/aqueduct/modals/AddAssigneeModal", ["flarum/components/Modal", "flarum/components/DiscussionPage", "flarum/components/Button", "flarum/utils/ItemList", "flagrow/aqueduct/search/MultiSelectionInput", "flarum/models/User", "flarum/models/Group"], function (_export, _context) {
     "use strict";
 
-    var Modal, DiscussionPage, Button, ItemList, RecipientSearch, User, Group, AddAssigneeModal;
+    var Modal, DiscussionPage, Button, ItemList, MultiSelectionInput, User, Group, AddAssigneeModal;
     return {
         setters: [function (_flarumComponentsModal) {
             Modal = _flarumComponentsModal.default;
@@ -1054,8 +1054,8 @@ System.register("flagrow/aqueduct/modals/AddAssigneeModal", ["flarum/components/
             Button = _flarumComponentsButton.default;
         }, function (_flarumUtilsItemList) {
             ItemList = _flarumUtilsItemList.default;
-        }, function (_flagrowAqueductSearchRecipientSearch) {
-            RecipientSearch = _flagrowAqueductSearchRecipientSearch.default;
+        }, function (_flagrowAqueductSearchMultiSelectionInput) {
+            MultiSelectionInput = _flagrowAqueductSearchMultiSelectionInput.default;
         }, function (_flarumModelsUser) {
             User = _flarumModelsUser.default;
         }, function (_flarumModelsGroup) {
@@ -1085,7 +1085,7 @@ System.register("flagrow/aqueduct/modals/AddAssigneeModal", ["flarum/components/
                             this.selected().merge(this.props.assignees);
                         }
 
-                        this.recipientSearch = RecipientSearch.component({
+                        this.recipientSearch = MultiSelectionInput.component({
                             selected: this.selected,
                             discussion: this.props.discussion
                         });
@@ -1646,10 +1646,10 @@ System.register('flagrow/aqueduct/routes', ['flagrow/aqueduct/pages/Board'], fun
 });;
 "use strict";
 
-System.register("flagrow/aqueduct/search/RecipientSearch", ["flarum/components/Search", "flagrow/aqueduct/search/sources/UserSearchSource", "flagrow/aqueduct/search/sources/GroupSearchSource", "flarum/utils/ItemList", "flarum/utils/classList", "flarum/utils/extractText", "flarum/components/LoadingIndicator", "flagrow/aqueduct/helpers/assigneeLabel", "flarum/models/User", "flarum/models/Group"], function (_export, _context) {
+System.register("flagrow/aqueduct/search/MultiSelectionInput", ["flarum/components/Search", "flagrow/aqueduct/search/sources/UserSearchSource", "flagrow/aqueduct/search/sources/GroupSearchSource", "flarum/utils/ItemList", "flarum/utils/classList", "flarum/utils/extractText", "flarum/components/LoadingIndicator", "flagrow/aqueduct/helpers/assigneeLabel", "flarum/models/User", "flarum/models/Group"], function (_export, _context) {
     "use strict";
 
-    var Search, UserSearchSource, GroupSearchSource, ItemList, classList, extractText, LoadingIndicator, recipientLabel, User, Group, RecipientSearch;
+    var Search, UserSearchSource, GroupSearchSource, ItemList, classList, extractText, LoadingIndicator, assigneeLabel, User, Group, MultiSelectionInput;
     return {
         setters: [function (_flarumComponentsSearch) {
             Search = _flarumComponentsSearch.default;
@@ -1666,22 +1666,22 @@ System.register("flagrow/aqueduct/search/RecipientSearch", ["flarum/components/S
         }, function (_flarumComponentsLoadingIndicator) {
             LoadingIndicator = _flarumComponentsLoadingIndicator.default;
         }, function (_flagrowAqueductHelpersAssigneeLabel) {
-            recipientLabel = _flagrowAqueductHelpersAssigneeLabel.default;
+            assigneeLabel = _flagrowAqueductHelpersAssigneeLabel.default;
         }, function (_flarumModelsUser) {
             User = _flarumModelsUser.default;
         }, function (_flarumModelsGroup) {
             Group = _flarumModelsGroup.default;
         }],
         execute: function () {
-            RecipientSearch = function (_Search) {
-                babelHelpers.inherits(RecipientSearch, _Search);
+            MultiSelectionInput = function (_Search) {
+                babelHelpers.inherits(MultiSelectionInput, _Search);
 
-                function RecipientSearch() {
-                    babelHelpers.classCallCheck(this, RecipientSearch);
-                    return babelHelpers.possibleConstructorReturn(this, (RecipientSearch.__proto__ || Object.getPrototypeOf(RecipientSearch)).apply(this, arguments));
+                function MultiSelectionInput() {
+                    babelHelpers.classCallCheck(this, MultiSelectionInput);
+                    return babelHelpers.possibleConstructorReturn(this, (MultiSelectionInput.__proto__ || Object.getPrototypeOf(MultiSelectionInput)).apply(this, arguments));
                 }
 
-                babelHelpers.createClass(RecipientSearch, [{
+                babelHelpers.createClass(MultiSelectionInput, [{
                     key: "config",
                     value: function config(isInitialized) {
                         var _this2 = this;
@@ -1693,20 +1693,27 @@ System.register("flagrow/aqueduct/search/RecipientSearch", ["flarum/components/S
                         this.$('.Search-results').on('click', function (e) {
                             var target = _this2.$('.SearchResult.active');
 
-                            $search.addRecipient(target.data('index'));
+                            $search.addSelection(target.data('index'));
 
-                            $search.$('.RecipientsInput').focus();
+                            $search.$('.MultiSelectionInput').focus();
                         });
 
                         this.$('.Search-results').on('touchstart', function (e) {
                             var target = _this2.$(e.target.parentNode);
 
-                            $search.addRecipient(target.data('index'));
+                            $search.addSelection(target.data('index'));
 
-                            $search.$('.RecipientsInput').focus();
+                            $search.$('.MultiSelectionInput').focus();
                         });
 
-                        babelHelpers.get(RecipientSearch.prototype.__proto__ || Object.getPrototypeOf(RecipientSearch.prototype), "config", this).call(this, isInitialized);
+                        babelHelpers.get(MultiSelectionInput.prototype.__proto__ || Object.getPrototypeOf(MultiSelectionInput.prototype), "config", this).call(this, isInitialized);
+                    }
+                }, {
+                    key: "generateLabel",
+                    value: function generateLabel(selection) {
+                        // ..
+
+                        var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
                     }
                 }, {
                     key: "view",
@@ -1718,17 +1725,17 @@ System.register("flagrow/aqueduct/search/RecipientSearch", ["flarum/components/S
                         }
 
                         return m('div', {
-                            className: 'AddRecipientModal-form-input'
+                            className: 'addSelectionModal-form-input'
                         }, [m('div', {
-                            className: 'RecipientsInput-selected RecipientsLabel'
-                        }, this.props.selected().toArray().map(function (recipient) {
-                            return recipientLabel(recipient, {
+                            className: 'MultiSelectionInput-selected RecipientsLabel'
+                        }, this.props.selected().toArray().map(function (selection) {
+                            return _this3.generateLabel(selection, {
                                 onclick: function onclick() {
-                                    _this3.removeRecipient(recipient);
+                                    _this3.removeSelection(selection);
                                 }
                             });
                         })), m('input', {
-                            className: 'RecipientsInput FormControl ' + classList({
+                            className: 'MultiSelectionInput FormControl ' + classList({
                                 open: !!this.value(),
                                 focused: !!this.value(),
                                 active: !!this.value(),
@@ -1774,8 +1781,8 @@ System.register("flagrow/aqueduct/search/RecipientSearch", ["flarum/components/S
                         m.redraw();
                     }
                 }, {
-                    key: "addRecipient",
-                    value: function addRecipient(value) {
+                    key: "addSelection",
+                    value: function addSelection(value) {
 
                         var values = value.split(':'),
                             type = values[0],
@@ -1788,8 +1795,8 @@ System.register("flagrow/aqueduct/search/RecipientSearch", ["flarum/components/S
                         this.clear();
                     }
                 }, {
-                    key: "removeRecipient",
-                    value: function removeRecipient(recipient) {
+                    key: "removeSelection",
+                    value: function removeSelection(recipient) {
                         var type;
 
                         if (recipient instanceof User) {
@@ -1809,10 +1816,10 @@ System.register("flagrow/aqueduct/search/RecipientSearch", ["flarum/components/S
                         return app.store.getById(store, id);
                     }
                 }]);
-                return RecipientSearch;
+                return MultiSelectionInput;
             }(Search);
 
-            _export("default", RecipientSearch);
+            _export("default", MultiSelectionInput);
         }
     };
 });;

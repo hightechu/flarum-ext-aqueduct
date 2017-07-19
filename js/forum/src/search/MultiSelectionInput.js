@@ -5,11 +5,11 @@ import ItemList from "flarum/utils/ItemList";
 import classList from "flarum/utils/classList";
 import extractText from "flarum/utils/extractText";
 import LoadingIndicator from "flarum/components/LoadingIndicator";
-import recipientLabel from "flagrow/aqueduct/helpers/assigneeLabel";
+import assigneeLabel from "flagrow/aqueduct/helpers/assigneeLabel";
 import User from "flarum/models/User";
 import Group from "flarum/models/Group";
 
-export default class RecipientSearch extends Search {
+export default class MultiSelectionInput extends Search {
 
     config(isInitialized) {
         if (isInitialized) return;
@@ -20,20 +20,24 @@ export default class RecipientSearch extends Search {
             var target = this.$('.SearchResult.active')
 
 
-            $search.addRecipient(target.data('index'));
+            $search.addSelection(target.data('index'));
 
-            $search.$('.RecipientsInput').focus();
+            $search.$('.MultiSelectionInput').focus();
         });
 
         this.$('.Search-results').on('touchstart', (e) => {
             var target = this.$(e.target.parentNode);
 
-            $search.addRecipient(target.data('index'));
+            $search.addSelection(target.data('index'));
 
-            $search.$('.RecipientsInput').focus();
+            $search.$('.MultiSelectionInput').focus();
         });
 
         super.config(isInitialized);
+    }
+
+    generateLabel(selection, attrs = {}) {
+        // ..
     }
 
     view() {
@@ -42,19 +46,18 @@ export default class RecipientSearch extends Search {
         }
 
         return m('div', {
-            className: 'AddRecipientModal-form-input'
+            className: 'addSelectionModal-form-input'
         }, [
             m('div', {
-                className: 'RecipientsInput-selected RecipientsLabel'
-            }, this.props.selected().toArray().map(recipient =>
-                recipientLabel(recipient, {
+                className: 'MultiSelectionInput-selected RecipientsLabel'
+            }, this.props.selected().toArray().map(selection => this.generateLabel(selection, {
                     onclick: () => {
-                        this.removeRecipient(recipient);
+                        this.removeSelection(selection);
                     }
                 })
             )),
             m('input', {
-                className: 'RecipientsInput FormControl ' + classList({
+                className: 'MultiSelectionInput FormControl ' + classList({
                     open: !!this.value(),
                     focused: !!this.value(),
                     active: !!this.value(),
@@ -111,7 +114,7 @@ export default class RecipientSearch extends Search {
      *
      * @param value
      */
-    addRecipient(value) {
+    addSelection(value) {
 
         var values = value.split(':'),
             type = values[0],
@@ -129,7 +132,7 @@ export default class RecipientSearch extends Search {
      *
      * @param recipient
      */
-    removeRecipient(recipient) {
+    removeSelection(recipient) {
         var type;
 
         if (recipient instanceof User) {

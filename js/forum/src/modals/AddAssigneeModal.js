@@ -2,7 +2,7 @@ import Modal from "flarum/components/Modal";
 import DiscussionPage from "flarum/components/DiscussionPage";
 import Button from "flarum/components/Button";
 import ItemList from "flarum/utils/ItemList";
-import RecipientSearch from "flagrow/aqueduct/search/RecipientSearch";
+import MultiSelectionInput from "flagrow/aqueduct/search/MultiSelectionInput";
 import User from "flarum/models/User";
 import Group from "flarum/models/Group";
 
@@ -20,7 +20,7 @@ export default class AddAssigneeModal extends Modal {
             this.selected().merge(this.props.assignees);
         }
 
-        this.recipientSearch = RecipientSearch.component({
+        this.recipientSearch = MultiSelectionInput.component({
             selected: this.selected,
             discussion: this.props.discussion
         });
