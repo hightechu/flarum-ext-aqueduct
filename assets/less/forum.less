@@ -9,6 +9,7 @@
             padding: 10px 0;
             background: @control-bg;
             border-bottom: 1px solid darken(@control-bg,10%);
+            height: @header-height;
         }
 
         .Board--List {
@@ -16,7 +17,7 @@
             padding: 8px;
             overflow-x: scroll;
             white-space: nowrap;
-            height: calc(100vh - @header-height);
+            height: calc(99vh ~"-" @header-height ~"-" @header-height);
 
 
             .Board--Column {
