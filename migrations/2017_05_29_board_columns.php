@@ -14,11 +14,6 @@ return [
 
             $table->unique(['board_tag_id', 'column_tag_id']);
             $table->index(['board_tag_id', 'column_tag_id']);
-
-            $table->foreign('board_tag_id')->references('id')->on('tags')
-                ->onDelete('cascade');
-            $table->foreign('column_tag_id')->references('id')->on('tags')
-                ->onDelete('cascade');
         });
     },
     'down' => function (Builder $schema) {
