@@ -1,6 +1,7 @@
 import Component from 'flarum/Component';
 import ItemList from 'flarum/utils/ItemList';
 import icon from 'flarum/helpers/icon';
+import avatar from 'flarum/helpers/avatar';
 
 export default class Card extends Component {
     init() {
@@ -12,8 +13,9 @@ export default class Card extends Component {
         const jumpTo = Math.min(this.discussion.lastPostNumber(), (this.discussion.readNumber() || 0) + 1);
 
         return m('li', {
-            className: 'Card' + (this.isUnread ? ' Unread' : '')
-        }, m('div', [
+            className: 'Card' + (this.isUnread ? ' Unread' : ''),
+            discussion: this.discussion.id()
+        }, m('div', {className: 'Card--Handle'}, [
             m('div', {className: 'Card--Header'}, [
                 // Issue title.
                 m('div', {className: 'Card--Title'},
@@ -42,7 +44,7 @@ export default class Card extends Component {
             {avatar(startUser, {title: ''})}
         </a>);
 
-        items.add('count', m('div', [
+        items.add('count', m('div', {className: 'Card--Replies-Count'}, [
             icon(this.isUnread ? 'commenting-o' : 'comment-o'),
             this.discussion[this.isUnread ? 'unreadCount' : 'repliesCount']()
         ]));

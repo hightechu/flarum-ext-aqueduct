@@ -12,7 +12,8 @@ export default class Board extends Page {
 
         this.bodyClass = 'Aqueduct--Board';
 
-        this.draggable = null;
+        this.draggableColumns = null;
+        this.draggableCard = null;
 
         this.refresh(true);
     }
@@ -69,7 +70,7 @@ export default class Board extends Page {
                 }))
             }))
         }
-console.log(tag,items.toArray())
+
         return items;
     }
 
@@ -112,11 +113,11 @@ console.log(tag,items.toArray())
             this.discussions = {};
 
             this.tags = this.tag.columns() || [];
-
-            this.tags.sort((a,b) => {
-                return a.board_sort() - b.board_sort();
-            });
         }
+
+        this.tags.sort((a,b) => {
+            return a.boardSort() - b.boardSort();
+        });
 
         this.load().then(
             results => {
@@ -173,7 +174,21 @@ console.log(tag,items.toArray())
      * Listens to dragging event and updates the sorting of the columns.
      */
     setDraggable() {
-        if (this.draggable) {
+        if (this.draggableCard) {
+            sortable('.Board--Item-List')
+        } else {
+            sortable('.Board--Item-List', {
+                // connectWith: 'Board--Connected--Cards',
+                items: '.Card',
+                handle: '.Card--Footer',
+                placeholder: '<div class="Card Placeholder"></div>',
+                forcePlaceholderSize: true
+            })[0].addEventListener('sortupdate', (e) => {
+
+            });
+        }
+
+        if (this.draggableColumns) {
             sortable('.Board--List')
         } else {
             sortable('.Board--List', {
@@ -186,14 +201,15 @@ console.log(tag,items.toArray())
                     return $(this).attr('slug');
                 }).get();
 
-                this.updateSorting(sorting);
+                this.updateColumnSorting(sorting);
             });
         }
 
-        this.draggable = true;
+        this.draggableCard = true;
+        this.draggableColumns = true;
     }
 
-    updateSorting(sorting) {
+    updateColumnSorting(sorting) {
         return app.request({
             method: 'post',
             url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug() + '/sorting',

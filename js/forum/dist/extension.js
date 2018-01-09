@@ -854,10 +854,10 @@ System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "fla
 });;
 'use strict';
 
-System.register('flagrow/aqueduct/components/Card', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/icon'], function (_export, _context) {
+System.register('flagrow/aqueduct/components/Card', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/icon', 'flarum/helpers/avatar'], function (_export, _context) {
     "use strict";
 
-    var Component, ItemList, icon, Card;
+    var Component, ItemList, icon, avatar, Card;
     return {
         setters: [function (_flarumComponent) {
             Component = _flarumComponent.default;
@@ -865,6 +865,8 @@ System.register('flagrow/aqueduct/components/Card', ['flarum/Component', 'flarum
             ItemList = _flarumUtilsItemList.default;
         }, function (_flarumHelpersIcon) {
             icon = _flarumHelpersIcon.default;
+        }, function (_flarumHelpersAvatar) {
+            avatar = _flarumHelpersAvatar.default;
         }],
         execute: function () {
             Card = function (_Component) {
@@ -887,8 +889,9 @@ System.register('flagrow/aqueduct/components/Card', ['flarum/Component', 'flarum
                         var jumpTo = Math.min(this.discussion.lastPostNumber(), (this.discussion.readNumber() || 0) + 1);
 
                         return m('li', {
-                            className: 'Card' + (this.isUnread ? ' Unread' : '')
-                        }, m('div', [m('div', { className: 'Card--Header' }, [
+                            className: 'Card' + (this.isUnread ? ' Unread' : ''),
+                            discussion: this.discussion.id()
+                        }, m('div', { className: 'Card--Handle' }, [m('div', { className: 'Card--Header' }, [
                         // Issue title.
                         m('div', { className: 'Card--Title' }, m(
                             'a',
@@ -915,7 +918,7 @@ System.register('flagrow/aqueduct/components/Card', ['flarum/Component', 'flarum
                             avatar(startUser, { title: '' })
                         ));
 
-                        items.add('count', m('div', [icon(this.isUnread ? 'commenting-o' : 'comment-o'), this.discussion[this.isUnread ? 'unreadCount' : 'repliesCount']()]));
+                        items.add('count', m('div', { className: 'Card--Replies-Count' }, [icon(this.isUnread ? 'commenting-o' : 'comment-o'), this.discussion[this.isUnread ? 'unreadCount' : 'repliesCount']()]));
 
                         return items;
                     }
@@ -1019,17 +1022,17 @@ System.register('flagrow/aqueduct/labels/assigneesLabel', ['flarum/utils/extract
 });;
 'use strict';
 
-System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/routes', 'flagrow/aqueduct/addsBoardToDiscussion', 'flarum/Model', 'flarum/tags/models/Tag', 'flarum/models/Discussion'], function (_export, _context) {
+System.register('flagrow/aqueduct/main', ['flarum/extend', './routes', './addsBoardToDiscussion', 'flarum/Model', 'flarum/tags/models/Tag', 'flarum/models/Discussion'], function (_export, _context) {
     "use strict";
 
     var extend, routes, addsBoardToDiscussion, Model, Tag, Discussion;
     return {
         setters: [function (_flarumExtend) {
             extend = _flarumExtend.extend;
-        }, function (_flagrowAqueductRoutes) {
-            routes = _flagrowAqueductRoutes.default;
-        }, function (_flagrowAqueductAddsBoardToDiscussion) {
-            addsBoardToDiscussion = _flagrowAqueductAddsBoardToDiscussion.default;
+        }, function (_routes) {
+            routes = _routes.default;
+        }, function (_addsBoardToDiscussion) {
+            addsBoardToDiscussion = _addsBoardToDiscussion.default;
         }, function (_flarumModel) {
             Model = _flarumModel.default;
         }, function (_flarumTagsModelsTag) {
@@ -1043,8 +1046,8 @@ System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/rou
                 Tag.prototype.canManageBoard = Model.attribute('canManageBoard');
                 Tag.prototype.canUseBoard = Model.attribute('canUseBoard');
                 Tag.prototype.columns = Model.hasMany('columns');
-                Tag.prototype.board_sort = Model.attribute('board_sort') || null;
-                Tag.prototype.board_max_items = Model.attribute('board_max_items') || null;
+                Tag.prototype.boardSort = Model.attribute('boardSort') || null;
+                Tag.prototype.boardMaxItems = Model.attribute('boardMaxItems') || null;
 
                 Discussion.prototype.canViewBoard = Model.hasMany('canViewBoard');
                 Discussion.prototype.canUseBoard = Model.hasMany('canUseBoard');
@@ -1450,7 +1453,8 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
 
                         this.bodyClass = 'Aqueduct--Board';
 
-                        this.draggable = null;
+                        this.draggableColumns = null;
+                        this.draggableCard = null;
 
                         this.refresh(true);
                     }
@@ -1509,7 +1513,7 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                                 }
                             }));
                         }
-                        console.log(tag, items.toArray());
+
                         return items;
                     }
                 }, {
@@ -1548,11 +1552,11 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                             this.discussions = {};
 
                             this.tags = this.tag.columns() || [];
-
-                            this.tags.sort(function (a, b) {
-                                return a.board_sort() - b.board_sort();
-                            });
                         }
+
+                        this.tags.sort(function (a, b) {
+                            return a.boardSort() - b.boardSort();
+                        });
 
                         this.load().then(function (results) {
                             app.store.pushPayload(results);
@@ -1603,7 +1607,19 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                     value: function setDraggable() {
                         var _this6 = this;
 
-                        if (this.draggable) {
+                        if (this.draggableCard) {
+                            sortable('.Board--Item-List');
+                        } else {
+                            sortable('.Board--Item-List', {
+                                // connectWith: 'Board--Connected--Cards',
+                                items: '.Card',
+                                handle: '.Card--Footer',
+                                placeholder: '<div class="Card Placeholder"></div>',
+                                forcePlaceholderSize: true
+                            })[0].addEventListener('sortupdate', function (e) {});
+                        }
+
+                        if (this.draggableColumns) {
                             sortable('.Board--List');
                         } else {
                             sortable('.Board--List', {
@@ -1616,15 +1632,16 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                                     return $(this).attr('slug');
                                 }).get();
 
-                                _this6.updateSorting(sorting);
+                                _this6.updateColumnSorting(sorting);
                             });
                         }
 
-                        this.draggable = true;
+                        this.draggableCard = true;
+                        this.draggableColumns = true;
                     }
                 }, {
-                    key: "updateSorting",
-                    value: function updateSorting(sorting) {
+                    key: "updateColumnSorting",
+                    value: function updateColumnSorting(sorting) {
                         var _this7 = this;
 
                         return app.request({

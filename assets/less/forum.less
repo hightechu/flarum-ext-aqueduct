@@ -70,7 +70,7 @@
                         margin: 0;
                         padding: 5px;
                         list-style: none;
-                        overflow-y: scroll;
+                        overflow-y: auto;
                         overflow-x: hidden;
 
                         li.Card {
@@ -80,6 +80,12 @@
                             background: @body-bg;
                             .box-shadow(0 1px 5px @shadow-color);
                             margin: 0 0 5px 0;
+
+                            &.Placeholder {
+                                background: lighten(@control-bg, 10%);
+                                border: 1px dashed @control-bg;
+                                border-radius: @border-radius;
+                            }
 
                             .Card--Header {
                                 padding: 4px;

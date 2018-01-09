@@ -28,8 +28,8 @@ class AddTagAttributes
 
             // Inject the pivot information.
             if (isset($event->model->pivot)) {
-                $event->attributes['board_sort'] = $event->model->pivot->sort;
-                $event->attributes['board_max_items'] = $event->model->pivot->max_items;
+                $event->attributes['boardSort'] = $event->model->pivot->sort;
+                $event->attributes['boardMaxItems'] = $event->model->pivot->max_items;
             }
         }
 
