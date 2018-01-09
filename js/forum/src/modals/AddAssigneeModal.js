@@ -2,7 +2,7 @@ import Modal from "flarum/components/Modal";
 import DiscussionPage from "flarum/components/DiscussionPage";
 import Button from "flarum/components/Button";
 import ItemList from "flarum/utils/ItemList";
-import MultiSelectionInput from "flagrow/aqueduct/search/MultiSelectionInput";
+import MultiSelectionInput from "../search/MultiSelectionInput";
 import User from "flarum/models/User";
 import Group from "flarum/models/Group";
 

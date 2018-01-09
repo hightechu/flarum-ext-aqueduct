@@ -4,7 +4,7 @@ namespace Flagrow\Aqueduct\Listeners;
 
 use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Api\Controller\ShowForumController;
-use Flarum\Event\ConfigureApiController;
+use Flarum\Api\Event\WillGetData;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\GetModelRelationship;
 use Flarum\Tags\Api\Controller\ListTagsController;
@@ -18,7 +18,7 @@ class AddTagRelationships
     {
         $events->listen(GetModelRelationship::class, [$this, 'onModel']);
         $events->listen(GetApiRelationship::class, [$this, 'onApi']);
-        $events->listen(ConfigureApiController::class, [$this, 'onController']);
+        $events->listen(WillGetData::class, [$this, 'onController']);
     }
 
     public function onModel(GetModelRelationship $event)
@@ -43,7 +43,7 @@ class AddTagRelationships
         }
     }
 
-    public function onController(ConfigureApiController $event)
+    public function onController(WillGetData $event)
     {
         if ($event->isController(ListTagsController::class)) {
             $event->addInclude('columns');

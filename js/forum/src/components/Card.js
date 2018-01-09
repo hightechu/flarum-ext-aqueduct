@@ -1,7 +1,6 @@
 import Component from 'flarum/Component';
 import ItemList from 'flarum/utils/ItemList';
 import icon from 'flarum/helpers/icon';
-import avatar from 'flarum/helpers/avatar';
 
 export default class Card extends Component {
     init() {

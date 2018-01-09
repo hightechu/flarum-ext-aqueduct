@@ -4,19 +4,19 @@ namespace Flagrow\Aqueduct\Listeners;
 
 use DirectoryIterator;
 use Flarum\Event\ConfigureLocales;
-use Flarum\Event\ConfigureWebApp;
+use Flarum\Frontend\Event\Rendering;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddAssets
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(ConfigureWebApp::class, [$this, 'addJs']);
-        $events->listen(ConfigureWebApp::class, [$this, 'addLess']);
+        $events->listen(Rendering::class, [$this, 'addJs']);
+        $events->listen(Rendering::class, [$this, 'addLess']);
         $events->listen(ConfigureLocales::class, [$this, 'addLocales']);
     }
 
-    public function addJs(ConfigureWebApp $event)
+    public function addJs(Rendering $event)
     {
         if ($event->isForum()) {
             $event->addAssets([
@@ -32,7 +32,7 @@ class AddAssets
         $event->addBootstrapper('flagrow/aqueduct/main');
     }
 
-    public function addLess(ConfigureWebApp $event)
+    public function addLess(Rendering $event)
     {
         if ($event->isForum()) {
             $event->addAssets([

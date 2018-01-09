@@ -1,5 +1,5 @@
 import extract from 'flarum/utils/extract';
-import assigneeLabel from 'flagrow/aqueduct/labels/assigneeLabel';
+import assigneeLabel from './assigneeLabel';
 
 export default function assigneesLabel(assignees, attrs = {}) {
     const children = [];

@@ -2,14 +2,13 @@
 
 namespace Flagrow\Aqueduct\Http\Controllers;
 
-use Flarum\Core\User;
-use Flarum\Forum\Controller\WebAppController;
+use Flarum\Forum\Controller\FrontendController;
+use Flarum\User\User;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class BoardController extends WebAppController
+class BoardController extends FrontendController
 {
-
     protected function getView(Request $request)
     {
         /** @var User $actor */

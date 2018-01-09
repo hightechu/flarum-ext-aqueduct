@@ -6,8 +6,8 @@ import ItemList from "flarum/utils/ItemList";
 import avatar from "flarum/helpers/avatar";
 import icon from "flarum/helpers/icon";
 import DiscussionHero from "flarum/components/DiscussionHero";
-import assigneesLabel from "flagrow/aqueduct/labels/assigneesLabel";
-import AddAssigneeModal from "flagrow/aqueduct/modals/AddAssigneeModal";
+import assigneesLabel from "./labels/assigneesLabel";
+import AddAssigneeModal from "./modals/AddAssigneeModal";
 
 export default function () {
 

@@ -2,8 +2,8 @@
 
 namespace Flagrow\Aqueduct\Repositories;
 
-use Flarum\Core\Discussion;
-use Flarum\Core\User;
+use Flarum\Discussion\Discussion;
+use Flarum\User\User;
 use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository as NativeTagRepository;
 

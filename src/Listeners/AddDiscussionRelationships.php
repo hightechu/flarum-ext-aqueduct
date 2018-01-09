@@ -6,13 +6,13 @@ use Flarum\Api\Controller\ShowDiscussionController;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Api\Serializer\UserSerializer;
-use Flarum\Core\Discussion;
-use Flarum\Core\Group;
-use Flarum\Core\User;
-use Flarum\Event\ConfigureApiController;
+use Flarum\Discussion\Discussion;
+use Flarum\Group\Group;
+use Flarum\User\User;
+use Flarum\Api\Event\WillGetData;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\GetModelRelationship;
-use Flarum\Event\PrepareApiAttributes;
+use Flarum\Api\Event\Serializing;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AddDiscussionRelationships
@@ -24,9 +24,9 @@ class AddDiscussionRelationships
     {
         $events->listen(GetModelRelationship::class, [$this, 'onModel']);
         $events->listen(GetApiRelationship::class, [$this, 'onApi']);
-        $events->listen(ConfigureApiController::class, [$this, 'onController']);
+        $events->listen(WillGetData::class, [$this, 'onController']);
 
-        $events->listen(PrepareApiAttributes::class, [$this, 'addPermissions']);
+        $events->listen(Serializing::class, [$this, 'addPermissions']);
     }
 
     /**
@@ -66,9 +66,9 @@ class AddDiscussionRelationships
     }
 
     /**
-     * @param ConfigureApiController $event
+     * @param WillGetData $event
      */
-    public function onController(ConfigureApiController $event)
+    public function onController(WillGetData $event)
     {
         if ($event->isController(ShowDiscussionController::class)) {
             $event->addInclude([
@@ -78,9 +78,9 @@ class AddDiscussionRelationships
     }
 
     /**
-     * @param PrepareApiAttributes $event
+     * @param Serializing $event
      */
-    public function addPermissions(PrepareApiAttributes $event)
+    public function addPermissions(Serializing $event)
     {
         if ($event->isSerializer(DiscussionSerializer::class)) {
             $event->attributes['canViewBoard'] = $event->actor->can('discussion.flagrow.aqueduct.board-access', $event->model);

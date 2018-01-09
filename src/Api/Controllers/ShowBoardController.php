@@ -2,14 +2,14 @@
 
 namespace Flagrow\Aqueduct\Api\Controllers;
 
-use Flarum\Api\Controller\AbstractCollectionController;
+use Flarum\Api\Controller\AbstractListController;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flagrow\Aqueduct\Repositories\TagRepository;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ShowBoardController extends AbstractCollectionController
+class ShowBoardController extends AbstractListController
 {
     public $serializer = DiscussionSerializer::class;
     /**

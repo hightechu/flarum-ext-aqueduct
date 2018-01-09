@@ -2,9 +2,9 @@
 
 namespace Flagrow\Aqueduct\Api\Controllers;
 
-use Flarum\Api\Controller\AbstractResourceController;
-use Flarum\Core\Access\AssertPermissionTrait;
-use Flarum\Core\User;
+use Flarum\Api\Controller\AbstractShowController;
+use Flarum\User\AssertPermissionTrait;
+use Flarum\User\User;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flagrow\Aqueduct\Repositories\TagRepository;
 use Flarum\Tags\Tag;
@@ -12,7 +12,7 @@ use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ToggleColumnController extends AbstractResourceController
+class ToggleColumnController extends AbstractShowController
 {
     use AssertPermissionTrait;
 

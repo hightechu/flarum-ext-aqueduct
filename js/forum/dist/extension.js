@@ -9,7 +9,7 @@
 }(this, function() {
 /*
  * HTML5 Sortable library
- * https://github.com/voidberg/html5sortable
+ * https://github.com/lukasoppermann/html5sortable
  *
  * Original code copyright 2012 Ali Farhadi.
  * This version is mantained by Lukas Oppermann <lukas@vea.re>
@@ -182,7 +182,9 @@ var _removeSortableEvents = function (sortable) {
 var _attachGhost = function (event, ghost) {
   // this needs to be set for HTML5 drag & drop to work
   event.dataTransfer.effectAllowed = 'move'
-  event.dataTransfer.setData('text', '')
+  // Firefox requires some arbitrary content in the data in order for
+  // the drag & drop functionality to work
+  event.dataTransfer.setData('text', 'arbitrary-content')
 
   // check if setDragImage method is available
   if (event.dataTransfer.setDragImage) {
@@ -466,6 +468,11 @@ var _getChildren = function (element) {
   return element.children
 }
 
+var _serialize = function (list) {
+  var children = _filter(_getChildren(list), _data(list, 'items'))
+  return children
+}
+
 /*
  * Public sortable object
  * @param {Array|NodeList} sortableElements
@@ -505,12 +512,22 @@ var sortable = function (sortableElements, options) {
 
   sortableElements = Array.prototype.slice.call(sortableElements)
 
+  if (/serialize/.test(method)) {
+    var serialized = []
+    sortableElements.forEach(function (sortableElement) {
+      serialized.push({
+        list: sortableElement,
+        children: _serialize(sortableElement)
+      })
+    })
+    return serialized
+  }
+
   /* TODO: maxstatements should be 25, fix and remove line below */
   /* jshint maxstatements:false */
   sortableElements.forEach(function (sortableElement) {
     if (/enable|disable|destroy/.test(method)) {
-      sortable[method](sortableElement)
-      return
+      return sortable[method](sortableElement)
     }
 
     // get options & set options on sortable
@@ -522,6 +539,7 @@ var sortable = function (sortableElements, options) {
     var items = _filter(_getChildren(sortableElement), options.items)
     var index
     var startParent
+    var startList
     var placeholder = options.placeholder
     var maxItems
     if (!placeholder) {
@@ -590,6 +608,7 @@ var sortable = function (sortableElements, options) {
       index = _index(dragging)
       draggingHeight = parseInt(window.getComputedStyle(dragging).height)
       startParent = this.parentElement
+      startList = _serialize(startParent)
       // dispatch sortstart event on each element in group
       _dispatchEventOnConnected(sortableElement, _makeEvent('sortstart', {
         item: dragging,
@@ -624,7 +643,10 @@ var sortable = function (sortableElements, options) {
           elementIndex: _index(dragging),
           oldElementIndex: index,
           startparent: startParent,
-          endparent: newParent
+          endparent: newParent,
+          newEndList: _serialize(newParent),
+          newStartList: _serialize(startParent),
+          oldStartList: startList
         }))
       }
       dragging = null
@@ -738,7 +760,7 @@ return sortable;
 ;
 "use strict";
 
-System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "flarum/components/DiscussionPage", "flarum/components/Button", "flarum/components/SplitDropdown", "flarum/utils/ItemList", "flarum/helpers/avatar", "flarum/helpers/icon", "flarum/components/DiscussionHero", "flagrow/aqueduct/labels/assigneesLabel", "flagrow/aqueduct/modals/AddAssigneeModal"], function (_export, _context) {
+System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "flarum/components/DiscussionPage", "flarum/components/Button", "flarum/components/SplitDropdown", "flarum/utils/ItemList", "flarum/helpers/avatar", "flarum/helpers/icon", "flarum/components/DiscussionHero", "./labels/assigneesLabel", "./modals/AddAssigneeModal"], function (_export, _context) {
     "use strict";
 
     var extend, DiscussionPage, Button, SplitDropdown, ItemList, avatar, icon, DiscussionHero, assigneesLabel, AddAssigneeModal;
@@ -822,20 +844,20 @@ System.register("flagrow/aqueduct/addsBoardToDiscussion", ["flarum/extend", "fla
             icon = _flarumHelpersIcon.default;
         }, function (_flarumComponentsDiscussionHero) {
             DiscussionHero = _flarumComponentsDiscussionHero.default;
-        }, function (_flagrowAqueductLabelsAssigneesLabel) {
-            assigneesLabel = _flagrowAqueductLabelsAssigneesLabel.default;
-        }, function (_flagrowAqueductModalsAddAssigneeModal) {
-            AddAssigneeModal = _flagrowAqueductModalsAddAssigneeModal.default;
+        }, function (_labelsAssigneesLabel) {
+            assigneesLabel = _labelsAssigneesLabel.default;
+        }, function (_modalsAddAssigneeModal) {
+            AddAssigneeModal = _modalsAddAssigneeModal.default;
         }],
         execute: function () {}
     };
 });;
 'use strict';
 
-System.register('flagrow/aqueduct/components/Card', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/icon', 'flarum/helpers/avatar'], function (_export, _context) {
+System.register('flagrow/aqueduct/components/Card', ['flarum/Component', 'flarum/utils/ItemList', 'flarum/helpers/icon'], function (_export, _context) {
     "use strict";
 
-    var Component, ItemList, icon, avatar, Card;
+    var Component, ItemList, icon, Card;
     return {
         setters: [function (_flarumComponent) {
             Component = _flarumComponent.default;
@@ -843,8 +865,6 @@ System.register('flagrow/aqueduct/components/Card', ['flarum/Component', 'flarum
             ItemList = _flarumUtilsItemList.default;
         }, function (_flarumHelpersIcon) {
             icon = _flarumHelpersIcon.default;
-        }, function (_flarumHelpersAvatar) {
-            avatar = _flarumHelpersAvatar.default;
         }],
         execute: function () {
             Card = function (_Component) {
@@ -959,7 +979,7 @@ System.register('flagrow/aqueduct/labels/assigneeLabel', ['flarum/utils/extract'
 });;
 'use strict';
 
-System.register('flagrow/aqueduct/labels/assigneesLabel', ['flarum/utils/extract', 'flagrow/aqueduct/labels/assigneeLabel'], function (_export, _context) {
+System.register('flagrow/aqueduct/labels/assigneesLabel', ['flarum/utils/extract', './assigneeLabel'], function (_export, _context) {
     "use strict";
 
     var extract, assigneeLabel;
@@ -991,8 +1011,8 @@ System.register('flagrow/aqueduct/labels/assigneesLabel', ['flarum/utils/extract
     return {
         setters: [function (_flarumUtilsExtract) {
             extract = _flarumUtilsExtract.default;
-        }, function (_flagrowAqueductLabelsAssigneeLabel) {
-            assigneeLabel = _flagrowAqueductLabelsAssigneeLabel.default;
+        }, function (_assigneeLabel) {
+            assigneeLabel = _assigneeLabel.default;
         }],
         execute: function () {}
     };
@@ -1041,7 +1061,7 @@ System.register('flagrow/aqueduct/main', ['flarum/extend', 'flagrow/aqueduct/rou
 });;
 "use strict";
 
-System.register("flagrow/aqueduct/modals/AddAssigneeModal", ["flarum/components/Modal", "flarum/components/DiscussionPage", "flarum/components/Button", "flarum/utils/ItemList", "flagrow/aqueduct/search/MultiSelectionInput", "flarum/models/User", "flarum/models/Group"], function (_export, _context) {
+System.register("flagrow/aqueduct/modals/AddAssigneeModal", ["flarum/components/Modal", "flarum/components/DiscussionPage", "flarum/components/Button", "flarum/utils/ItemList", "../search/MultiSelectionInput", "flarum/models/User", "flarum/models/Group"], function (_export, _context) {
     "use strict";
 
     var Modal, DiscussionPage, Button, ItemList, MultiSelectionInput, User, Group, AddAssigneeModal;
@@ -1054,8 +1074,8 @@ System.register("flagrow/aqueduct/modals/AddAssigneeModal", ["flarum/components/
             Button = _flarumComponentsButton.default;
         }, function (_flarumUtilsItemList) {
             ItemList = _flarumUtilsItemList.default;
-        }, function (_flagrowAqueductSearchMultiSelectionInput) {
-            MultiSelectionInput = _flagrowAqueductSearchMultiSelectionInput.default;
+        }, function (_searchMultiSelectionInput) {
+            MultiSelectionInput = _searchMultiSelectionInput.default;
         }, function (_flarumModelsUser) {
             User = _flarumModelsUser.default;
         }, function (_flarumModelsGroup) {
@@ -1197,15 +1217,13 @@ System.register("flagrow/aqueduct/modals/AddAssigneeModal", ["flarum/components/
 });;
 'use strict';
 
-System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Modal', 'flarum/components/Button', 'flarum/tags/helpers/tagLabel', 'flarum/tags/helpers/tagIcon', 'flarum/helpers/highlight', 'flarum/utils/classList'], function (_export, _context) {
+System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Modal', 'flarum/tags/helpers/tagLabel', 'flarum/tags/helpers/tagIcon', 'flarum/helpers/highlight', 'flarum/utils/classList', 'flarum/components/Button'], function (_export, _context) {
   "use strict";
 
-  var Modal, Button, tagLabel, tagIcon, highlight, classList, AddColumnModal;
+  var Modal, tagLabel, tagIcon, highlight, classList, Button, AddColumnModal;
   return {
     setters: [function (_flarumComponentsModal) {
       Modal = _flarumComponentsModal.default;
-    }, function (_flarumComponentsButton) {
-      Button = _flarumComponentsButton.default;
     }, function (_flarumTagsHelpersTagLabel) {
       tagLabel = _flarumTagsHelpersTagLabel.default;
     }, function (_flarumTagsHelpersTagIcon) {
@@ -1214,6 +1232,8 @@ System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Mo
       highlight = _flarumHelpersHighlight.default;
     }, function (_flarumUtilsClassList) {
       classList = _flarumUtilsClassList.default;
+    }, function (_flarumComponentsButton) {
+      Button = _flarumComponentsButton.default;
     }],
     execute: function () {
       AddColumnModal = function (_Modal) {
@@ -1394,7 +1414,7 @@ System.register('flagrow/aqueduct/modals/AddColumnModal', ['flarum/components/Mo
 });;
 "use strict";
 
-System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/components/Page", "flarum/components/SplitDropdown", "flarum/components/Button", "flarum/utils/ItemList", "flagrow/aqueduct/modals/AddColumnModal", "flagrow/aqueduct/components/Card"], function (_export, _context) {
+System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/components/Page", "flarum/components/SplitDropdown", "flarum/components/Button", "flarum/utils/ItemList", "../modals/AddColumnModal", "../components/Card"], function (_export, _context) {
     "use strict";
 
     var extend, Page, SplitDropdown, Button, ItemList, AddColumnModal, Card, Board;
@@ -1409,10 +1429,10 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
             Button = _flarumComponentsButton.default;
         }, function (_flarumUtilsItemList) {
             ItemList = _flarumUtilsItemList.default;
-        }, function (_flagrowAqueductModalsAddColumnModal) {
-            AddColumnModal = _flagrowAqueductModalsAddColumnModal.default;
-        }, function (_flagrowAqueductComponentsCard) {
-            Card = _flagrowAqueductComponentsCard.default;
+        }, function (_modalsAddColumnModal) {
+            AddColumnModal = _modalsAddColumnModal.default;
+        }, function (_componentsCard) {
+            Card = _componentsCard.default;
         }],
         execute: function () {
             Board = function (_Page) {
@@ -1489,7 +1509,7 @@ System.register("flagrow/aqueduct/pages/Board", ["flarum/extend", "flarum/compon
                                 }
                             }));
                         }
-
+                        console.log(tag, items.toArray());
                         return items;
                     }
                 }, {

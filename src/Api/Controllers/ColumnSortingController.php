@@ -3,14 +3,16 @@
 namespace Flagrow\Aqueduct\Api\Controllers;
 
 use Flagrow\Aqueduct\Repositories\TagRepository;
-use Flarum\Api\Controller\AbstractResourceController;
-use Flarum\Core\Access\AssertPermissionTrait;
+use Flarum\Api\Controller\AbstractShowController;
+use Flarum\Tags\Tag;
+use Flarum\User\AssertPermissionTrait;
 use Flarum\Tags\Api\Serializer\TagSerializer;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class ColumnSortingController extends AbstractResourceController
+class ColumnSortingController extends AbstractShowController
 {
     use AssertPermissionTrait;
 

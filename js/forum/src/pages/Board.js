@@ -3,8 +3,8 @@ import Page from "flarum/components/Page";
 import SplitDropdown from 'flarum/components/SplitDropdown';
 import Button from 'flarum/components/Button';
 import ItemList from 'flarum/utils/ItemList';
-import AddColumnModal from 'flagrow/aqueduct/modals/AddColumnModal';
-import Card from 'flagrow/aqueduct/components/Card';
+import AddColumnModal from '../modals/AddColumnModal';
+import Card from '../components/Card';
 
 export default class Board extends Page {
     init() {
@@ -69,7 +69,7 @@ export default class Board extends Page {
                 }))
             }))
         }
-
+console.log(tag,items.toArray())
         return items;
     }
 

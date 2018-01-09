@@ -1,9 +1,9 @@
 import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
 import tagLabel from 'flarum/tags/helpers/tagLabel';
 import tagIcon from 'flarum/tags/helpers/tagIcon';
 import highlight from 'flarum/helpers/highlight';
 import classList from 'flarum/utils/classList';
+import Button from "flarum/components/Button";
 
 export default class AddColumnModal extends Modal {
 
