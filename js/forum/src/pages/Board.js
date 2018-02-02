@@ -3,6 +3,7 @@ import Page from "flarum/components/Page";
 import SplitDropdown from 'flarum/components/SplitDropdown';
 import Button from 'flarum/components/Button';
 import ItemList from 'flarum/utils/ItemList';
+import Switch from 'flarum/components/Switch';
 import AddColumnModal from '../modals/AddColumnModal';
 import Card from '../components/Card';
 
@@ -12,8 +13,8 @@ export default class Board extends Page {
 
         this.bodyClass = 'Aqueduct--Board';
 
-        this.draggableColumns = null;
-        this.draggableCard = null;
+        this.draggable = 'cards';
+        this.dragging = null;
 
         this.refresh(true);
     }
@@ -27,6 +28,7 @@ export default class Board extends Page {
 
         app.setTitle('');
         app.setTitleCount(0);
+
         if (this.tag.canManageBoard()) {
             this.setDraggable();
         }
@@ -125,10 +127,14 @@ export default class Board extends Page {
 
                 this.discussions = {};
                 this.parseResults(results.data);
+
+                this.setDraggable()
             },
             () => {
                 this.loading = false;
                 m.redraw();
+
+                this.setDraggable()
             }
         );
     }
@@ -174,13 +180,13 @@ export default class Board extends Page {
      * Listens to dragging event and updates the sorting of the columns.
      */
     setDraggable() {
-        if (this.draggableCard) {
+        if (this.draggable == 'cards' && this.dragging) {
             sortable('.Board--Item-List')
-        } else {
+        } else if (this.draggable == 'cards') {
             sortable('.Board--Item-List', {
                 // connectWith: 'Board--Connected--Cards',
                 items: '.Card',
-                handle: '.Card--Footer',
+                handle: '.Card--Handle',
                 placeholder: '<div class="Card Placeholder"></div>',
                 forcePlaceholderSize: true
             })[0].addEventListener('sortupdate', (e) => {
@@ -188,9 +194,9 @@ export default class Board extends Page {
             });
         }
 
-        if (this.draggableColumns) {
+        if (this.draggable == 'columns' && this.dragging) {
             sortable('.Board--List')
-        } else {
+        } else if (this.draggable == 'columns') {
             sortable('.Board--List', {
                 items: '.Board--Column',
                 handle: '.Board--Header',
@@ -205,8 +211,7 @@ export default class Board extends Page {
             });
         }
 
-        this.draggableCard = true;
-        this.draggableColumns = true;
+        this.dragging = true;
     }
 
     updateColumnSorting(sorting) {

@@ -36,7 +36,7 @@ class AddAssets
     {
         if ($event->isForum()) {
             $event->addAssets([
-                __DIR__ . '/../../assets/less/forum.less'
+                __DIR__ . '/../../resources/less/forum.less'
             ]);
         }
     }
@@ -48,7 +48,7 @@ class AddAssets
      */
     public function addLocales(ConfigureLocales $event)
     {
-        foreach (new DirectoryIterator(__DIR__ . '/../../assets/locale') as $file) {
+        foreach (new DirectoryIterator(__DIR__ . '/../../resources/locale') as $file) {
             if ($file->isFile() && in_array($file->getExtension(), ['yml', 'yaml'])) {
                 $event->locales->addTranslations($file->getBasename('.' . $file->getExtension()), $file->getPathname());
             }
