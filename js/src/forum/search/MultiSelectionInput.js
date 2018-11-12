@@ -1,11 +1,10 @@
 import Search from "flarum/components/Search";
-import UserSearchSource from "flagrow/aqueduct/search/sources/UserSearchSource";
-import GroupSearchSource from "flagrow/aqueduct/search/sources/GroupSearchSource";
+import UserSearchSource from "./sources/UserSearchSource";
+import GroupSearchSource from "./sources/GroupSearchSource";
 import ItemList from "flarum/utils/ItemList";
 import classList from "flarum/utils/classList";
 import extractText from "flarum/utils/extractText";
 import LoadingIndicator from "flarum/components/LoadingIndicator";
-import assigneeLabel from "flagrow/aqueduct/helpers/assigneeLabel";
 import User from "flarum/models/User";
 import Group from "flarum/models/Group";
 
