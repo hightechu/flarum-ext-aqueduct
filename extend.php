@@ -10,7 +10,7 @@ return [
         ->js(__DIR__ . '/js/dist/forum.js')
         ->css(__DIR__ . '/resources/less/forum.less'),
     (new Extend\Frontend('admin'))
-        ->js(__DIR__ . '/js/dist/admin.js')
+        ->js(__DIR__ . '/js/dist/admin.js'),
     (new Extend\Locales(__DIR__ . '/resources/locale')),
     (new Extend\Routes('api'))
         ->get('/board/{tag}', 'flagrow.aqueduct.api.board', Api\Controllers\ShowBoardController::class)
