@@ -3,14 +3,16 @@
 namespace Flagrow\Aqueduct\Http\Controllers;
 
 use Flarum\Forum\Controller\FrontendController;
+use Flarum\Frontend\HtmlDocumentFactory;
+use Flarum\Http\Controller\AbstractHtmlController;
 use Flarum\User\User;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Support\Renderable;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
 
-class BoardController implements RequestHandlerInterface
+class BoardController extends AbstractHtmlController
 {
     /**
      * @var Container
@@ -21,13 +23,7 @@ class BoardController implements RequestHandlerInterface
     {
         $this->container = $container;
     }
-
-    /**
-     * Handles a request and produces a response.
-     *
-     * May call other collaborating code to generate the response.
-     */
-    public function handle(Request $request): ResponseInterface
+    protected function render(Request $request)
     {
         /** @var User $actor */
         $actor = $request->getAttribute('actor');
@@ -36,6 +32,9 @@ class BoardController implements RequestHandlerInterface
             throw new RouteNotFoundException();
         }
 
-        return $this->container->make("flarum.forum.frontend");
+        /** @var HtmlDocumentFactory $factory */
+        $factory = $this->container->make("flarum.forum.frontend");
+
+        return $factory->make($request);
     }
 }

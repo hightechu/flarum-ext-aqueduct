@@ -1,9 +1,10 @@
+import sortable from 'html5sortable';
+
 import {extend} from "flarum/extend";
 import Page from "flarum/components/Page";
 import SplitDropdown from 'flarum/components/SplitDropdown';
 import Button from 'flarum/components/Button';
 import ItemList from 'flarum/utils/ItemList';
-import Switch from 'flarum/components/Switch';
 import AddColumnModal from '../modals/AddColumnModal';
 import Card from '../components/Card';
 
@@ -18,7 +19,6 @@ export default class Board extends Page {
 
         this.refresh(true);
     }
-
 
 
     config(isInitialized, context) {
@@ -41,12 +41,13 @@ export default class Board extends Page {
             m('div', {
                 className: 'Board--Controls'
             }, m('div', {className: 'container'}, [
-                SplitDropdown.component({
-                    children: this.controls().toArray(),
-                    icon: 'ellipsis-v',
-                    className: 'App-primaryControl',
-                    buttonClassName: 'Button--primary'
-                })
+                this.controls().isEmpty() ? [] :
+                    SplitDropdown.component({
+                        children: this.controls().toArray(),
+                        icon: 'ellipsis-v',
+                        className: 'App-primaryControl',
+                        buttonClassName: 'Button--primary'
+                    })
             ])),
             m('div', {
                 className: 'Board--List'
@@ -117,7 +118,7 @@ export default class Board extends Page {
             this.tags = this.tag.columns() || [];
         }
 
-        this.tags.sort((a,b) => {
+        this.tags.sort((a, b) => {
             return a.boardSort() - b.boardSort();
         });
 
@@ -181,34 +182,39 @@ export default class Board extends Page {
      */
     setDraggable() {
         if (this.draggable == 'cards' && this.dragging) {
-            sortable('.Board--Item-List')
+            sortable('.Board--Item-List');
         } else if (this.draggable == 'cards') {
-            sortable('.Board--Item-List', {
+            const sorted = sortable('.Board--Item-List', {
                 // connectWith: 'Board--Connected--Cards',
                 items: '.Card',
                 handle: '.Card--Handle',
                 placeholder: '<div class="Card Placeholder"></div>',
                 forcePlaceholderSize: true
-            })[0].addEventListener('sortupdate', (e) => {
-
             });
+            if (sorted.length > 0) {
+                sorted[0].addEventListener('sortupdate', (e) => {
+                });
+            }
         }
 
         if (this.draggable == 'columns' && this.dragging) {
-            sortable('.Board--List')
+            sortable('.Board--List');
         } else if (this.draggable == 'columns') {
-            sortable('.Board--List', {
+            const sorted = sortable('.Board--List', {
                 items: '.Board--Column',
                 handle: '.Board--Header',
                 placeholder: '<div class="Board--Column Placeholder"></div>',
                 forcePlaceholderSize: true
-            })[0].addEventListener('sortupdate', (e) => {
-                const sorting = $(e.target).find('.Board--Column').map(function () {
-                    return $(this).attr('slug');
-                }).get();
-
-                this.updateColumnSorting(sorting);
             });
+            if (sorted.length > 0) {
+                sorted[0].addEventListener('sortupdate', (e) => {
+                    const sorting = $(e.target).find('.Board--Column').map(function () {
+                        return $(this).attr('slug');
+                    }).get();
+
+                    this.updateColumnSorting(sorting);
+                });
+            }
         }
 
         this.dragging = true;
