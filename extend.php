@@ -19,7 +19,7 @@ return [
         ->post('/board/{board}/columns/{column}', 'flagrow.kanban.api.board.columns.add', Api\Controllers\ToggleColumnController::class),
     (new Extend\Compat(function (Dispatcher $events) {
         $events->subscribe(Listeners\AddTagRelationships::class);
-        $events->subscribe(Listeners\AddTagRelationships::class);
+        $events->subscribe(Listeners\AddTagAttributes::class);
         $events->subscribe(Listeners\AddDiscussionRelationships::class);
     }))
 ];

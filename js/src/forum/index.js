@@ -12,8 +12,8 @@ app.initializers.add('flagrow-kanban', function(app) {
     Tag.prototype.boardSort = Model.attribute('boardSort') || null;
     Tag.prototype.boardMaxItems = Model.attribute('boardMaxItems') || null;
 
-    Discussion.prototype.canViewBoard = Model.hasMany('canViewBoard');
-    Discussion.prototype.canUseBoard = Model.hasMany('canUseBoard');
+    Discussion.prototype.canViewBoard = Model.attribute('canViewBoard');
+    Discussion.prototype.canUseBoard = Model.attribute('canUseBoard');
     Discussion.prototype.canManageBoard = Model.attribute('canManageBoard');
     Discussion.prototype.assignedUsers = Model.hasMany('assignedUsers');
     Discussion.prototype.assignedGroups = Model.hasMany('assignedGroups');
@@ -21,4 +21,4 @@ app.initializers.add('flagrow-kanban', function(app) {
     routes(app);
 
     addsBoardToDiscussion();
-}, -10);
+});

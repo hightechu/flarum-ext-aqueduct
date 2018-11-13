@@ -10,7 +10,7 @@ export default class Card extends Component {
     }
 
     view() {
-        const jumpTo = Math.min(this.discussion.lastPostNumber(), (this.discussion.readNumber() || 0) + 1);
+        const jumpTo = Math.min(this.discussion.lastPostNumber(), (this.discussion.lastReadPostNumber() || 0) + 1);
 
         return m('li', {
             className: 'Card' + (this.isUnread ? ' Unread' : ''),
@@ -32,7 +32,7 @@ export default class Card extends Component {
     footerControls() {
         let items = new ItemList;
 
-        const startUser = this.discussion.startUser();
+        const startUser = this.discussion.user();
 
         items.add('startUser',
             <a href={startUser ? app.route.user(startUser) : '#'}
@@ -46,7 +46,7 @@ export default class Card extends Component {
 
         items.add('count', m('div', {className: 'Card--Replies-Count'}, [
             icon(this.isUnread ? 'commenting-o' : 'comment-o'),
-            this.discussion[this.isUnread ? 'unreadCount' : 'repliesCount']()
+            this.discussion[this.isUnread ? 'unreadCount' : 'replyCount']()
         ]));
 
         return items;
