@@ -938,7 +938,7 @@ __webpack_require__.r(__webpack_exports__);
         children: app.translator.trans('flagrow-kanban.forum.discussion.buttons.show-board', {
           tag: tag.name()
         }),
-        icon: 'trello',
+        icon: 'fab fa-trello',
         onclick: function onclick() {
           return m.route(app.route('flagrow.kanban.board', {
             tag: tag.slug()
@@ -951,7 +951,7 @@ __webpack_require__.r(__webpack_exports__);
       if (discussion.canManageBoard()) {
         controls.add('assignee', flarum_components_Button__WEBPACK_IMPORTED_MODULE_2___default.a.component({
           children: app.translator.trans('flagrow-kanban.forum.discussion.buttons.set-assignees'),
-          icon: 'user-circle-o',
+          icon: 'fas fa-user-cog',
           onclick: function onclick() {
             return app.modal.show(new _modals_AddAssigneeModal__WEBPACK_IMPORTED_MODULE_9__["default"]({
               discussion: discussion
@@ -962,7 +962,7 @@ __webpack_require__.r(__webpack_exports__);
 
       items.add('board', flarum_components_SplitDropdown__WEBPACK_IMPORTED_MODULE_3___default.a.component({
         children: controls.toArray(),
-        icon: 'trello',
+        icon: 'fab fa-trello',
         className: 'App-primaryControl',
         buttonClassName: 'Button--secondary'
       }), -50);
@@ -1288,9 +1288,7 @@ function (_Modal) {
   };
 
   _proto.title = function title() {
-    return this.props.discussion ? app.translator.trans('flagrow-kanban.forum.modal.titles.update_recipients', {
-      title: m("em", null, this.props.discussion.title())
-    }) : app.translator.trans('flagrow-kanban.forum.modal.titles.add_recipients');
+    return app.translator.trans('flagrow-kanban.forum.modals.set-assignee.title');
   };
 
   _proto.content = function content() {
@@ -1304,8 +1302,8 @@ function (_Modal) {
       type: 'submit',
       className: 'Button Button--primary',
       disabled: false,
-      icon: 'check',
-      children: app.translator.trans('flagrow-kanban.forum.buttons.submit')
+      icon: 'far fa-check',
+      children: app.translator.trans('flagrow-kanban.forum.modals.set-assignee.submit')
     }))))];
   };
 
@@ -1918,6 +1916,12 @@ function (_Search) {
 
     if (typeof this.value() === 'undefined') {
       this.value('');
+    } // Initialize search sources in the view rather than the constructor so
+    // that we have access to app.forum.
+
+
+    if (!this.sources) {
+      this.sources = this.sourceItems().toArray();
     }
 
     return m('div', {
@@ -1941,7 +1945,7 @@ function (_Search) {
         element.focus();
       },
       type: 'search',
-      placeholder: flarum_utils_extractText__WEBPACK_IMPORTED_MODULE_6___default()(app.translator.trans('flagrow-kanban.forum.input.search_recipients')),
+      placeholder: flarum_utils_extractText__WEBPACK_IMPORTED_MODULE_6___default()(app.translator.trans('flagrow-kanban.forum.modals.set-assignee.input')),
       value: this.value(),
       oninput: m.withAttr('value', this.value),
       onfocus: function onfocus() {

@@ -21,7 +21,7 @@ export default function () {
         tags.forEach(tag => {
             controls.add('board-' + tag.slug(), Button.component({
                 children: app.translator.trans('flagrow-kanban.forum.discussion.buttons.show-board', {tag: tag.name()}),
-                icon: 'trello',
+                icon: 'fab fa-trello',
                 onclick: () => m.route(app.route('flagrow.kanban.board', {tag: tag.slug()}))
             }));
         })
@@ -30,7 +30,7 @@ export default function () {
             if (discussion.canManageBoard()) {
                 controls.add('assignee', Button.component({
                     children: app.translator.trans('flagrow-kanban.forum.discussion.buttons.set-assignees'),
-                    icon: 'user-circle-o',
+                    icon: 'fas fa-user-cog',
                     onclick: () => app.modal.show(new AddAssigneeModal({discussion}))
                 }));
             }
@@ -39,7 +39,7 @@ export default function () {
                 'board',
                 SplitDropdown.component({
                     children: controls.toArray(),
-                    icon: 'trello',
+                    icon: 'fab fa-trello',
                     className: 'App-primaryControl',
                     buttonClassName: 'Button--secondary'
                 }),

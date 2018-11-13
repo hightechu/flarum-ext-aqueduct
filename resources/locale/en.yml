@@ -10,6 +10,12 @@ flagrow-kanban:
             buttons:
                 show-board: "Board {tag}"
                 set-assignees: Set assignees
+        modals:
+            set-assignee:
+                title: Set Assignees
+                submit: Submit
+                input: Search for users and groups
+
     admin:
         permissions:
             board-access: Access to boards

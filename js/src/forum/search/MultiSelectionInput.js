@@ -44,6 +44,12 @@ export default class MultiSelectionInput extends Search {
             this.value('');
         }
 
+        // Initialize search sources in the view rather than the constructor so
+        // that we have access to app.forum.
+        if (!this.sources) {
+            this.sources = this.sourceItems().toArray();
+        }
+
         return m('div', {
             className: 'addSelectionModal-form-input'
         }, [
@@ -66,7 +72,7 @@ export default class MultiSelectionInput extends Search {
                     element.focus();
                 },
                 type: 'search',
-                placeholder: extractText(app.translator.trans('flagrow-kanban.forum.input.search_recipients')),
+                placeholder: extractText(app.translator.trans('flagrow-kanban.forum.modals.set-assignee.input')),
                 value: this.value(),
                 oninput: m.withAttr('value', this.value),
                 onfocus: () => this.hasFocus = true,
@@ -115,11 +121,11 @@ export default class MultiSelectionInput extends Search {
      */
     addSelection(value) {
 
-        var values = value.split(':'),
+        let values = value.split(':'),
             type = values[0],
             id = values[1];
 
-        var recipient = this.findRecipient(type, id);
+        let recipient = this.findRecipient(type, id);
 
         this.props.selected().add(value, recipient);
 
@@ -132,7 +138,7 @@ export default class MultiSelectionInput extends Search {
      * @param recipient
      */
     removeSelection(recipient) {
-        var type;
+        let type;
 
         if (recipient instanceof User) {
             type = 'users';

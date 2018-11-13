@@ -9,7 +9,7 @@ export default function assigneeLabel(recipient, attrs = {}) {
 
     const link = extract(attrs, 'link');
 
-    var label;
+    let label;
 
     if (recipient instanceof User) {
         label = username(recipient);
