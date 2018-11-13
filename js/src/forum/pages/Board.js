@@ -181,9 +181,9 @@ export default class Board extends Page {
      * Listens to dragging event and updates the sorting of the columns.
      */
     setDraggable() {
-        if (this.draggable == 'cards' && this.dragging) {
+        if (this.draggable === 'cards' && this.dragging) {
             sortable('.Board--Item-List');
-        } else if (this.draggable == 'cards') {
+        } else if (this.draggable === 'cards') {
             const sorted = sortable('.Board--Item-List', {
                 // connectWith: 'Board--Connected--Cards',
                 items: '.Card',
@@ -197,9 +197,9 @@ export default class Board extends Page {
             }
         }
 
-        if (this.draggable == 'columns' && this.dragging) {
+        if (this.draggable === 'columns' && this.dragging) {
             sortable('.Board--List');
-        } else if (this.draggable == 'columns') {
+        } else if (this.draggable === 'columns') {
             const sorted = sortable('.Board--List', {
                 items: '.Board--Column',
                 handle: '.Board--Header',

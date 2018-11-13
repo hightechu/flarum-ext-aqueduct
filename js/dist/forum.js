@@ -1754,9 +1754,9 @@ function (_Page) {
   _proto.setDraggable = function setDraggable() {
     var _this5 = this;
 
-    if (this.draggable == 'cards' && this.dragging) {
+    if (this.draggable === 'cards' && this.dragging) {
       html5sortable__WEBPACK_IMPORTED_MODULE_1___default()('.Board--Item-List');
-    } else if (this.draggable == 'cards') {
+    } else if (this.draggable === 'cards') {
       var sorted = html5sortable__WEBPACK_IMPORTED_MODULE_1___default()('.Board--Item-List', {
         // connectWith: 'Board--Connected--Cards',
         items: '.Card',
@@ -1770,9 +1770,9 @@ function (_Page) {
       }
     }
 
-    if (this.draggable == 'columns' && this.dragging) {
+    if (this.draggable === 'columns' && this.dragging) {
       html5sortable__WEBPACK_IMPORTED_MODULE_1___default()('.Board--List');
-    } else if (this.draggable == 'columns') {
+    } else if (this.draggable === 'columns') {
       var _sorted = html5sortable__WEBPACK_IMPORTED_MODULE_1___default()('.Board--List', {
         items: '.Board--Column',
         handle: '.Board--Header',
