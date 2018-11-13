@@ -1,6 +1,6 @@
 <?php
 
-namespace Flagrow\Aqueduct\Listeners;
+namespace Flagrow\Kanban\Listeners;
 
 use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Api\Controller\ShowForumController;
@@ -26,7 +26,7 @@ class AddTagRelationships
         if ($event->isRelationship(Tag::class, 'columns')) {
             return $event->model->belongsToMany(
                 Tag::class,
-                'aqueduct_board_columns',
+                'kanban_board_columns',
                 'board_tag_id',
                 'column_tag_id'
             )->withPivot([

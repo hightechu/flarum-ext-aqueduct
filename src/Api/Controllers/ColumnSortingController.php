@@ -1,8 +1,8 @@
 <?php
 
-namespace Flagrow\Aqueduct\Api\Controllers;
+namespace Flagrow\Kanban\Api\Controllers;
 
-use Flagrow\Aqueduct\Repositories\TagRepository;
+use Flagrow\Kanban\Repositories\TagRepository;
 use Flarum\Api\Controller\AbstractShowController;
 use Flarum\Tags\Tag;
 use Flarum\User\AssertPermissionTrait;

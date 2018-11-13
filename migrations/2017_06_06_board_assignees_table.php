@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $schema->create('aqueduct_assignees', function (Blueprint $table) {
+        $schema->create('kanban_assignees', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('discussion_id')->unsigned();
             $table->integer('user_id')->unsigned()->nullable();
@@ -20,6 +20,6 @@ return [
         });
     },
     'down' => function (Builder $schema) {
-        $schema->drop('aqueduct_assignees');
+        $schema->drop('kanban_assignees');
     }
 ];

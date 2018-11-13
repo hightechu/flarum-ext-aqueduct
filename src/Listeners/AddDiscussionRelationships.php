@@ -1,6 +1,6 @@
 <?php
 
-namespace Flagrow\Aqueduct\Listeners;
+namespace Flagrow\Kanban\Listeners;
 
 use Flarum\Api\Controller\ShowDiscussionController;
 use Flarum\Api\Serializer\DiscussionSerializer;
@@ -38,14 +38,14 @@ class AddDiscussionRelationships
         if ($event->isRelationship(Discussion::class, 'assignedUsers')) {
             return $event->model->belongsToMany(
                 User::class,
-                'aqueduct_assignees'
+                'kanban_assignees'
             );
         }
 
         if ($event->isRelationship(Discussion::class, 'assignedGroups')) {
             return $event->model->belongsToMany(
                 Group::class,
-                'aqueduct_assignees'
+                'kanban_assignees'
             );
         }
     }

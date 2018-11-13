@@ -1,12 +1,10 @@
 {
-    "name": "flagrow/aqueduct",
+    "name": "flagrow/kanban",
     "description": "The planning tool extension for your Flarum forum.",
     "keywords": [
         "extension",
-        "flarum",
-        "flagrow",
-        "planning",
-        "agile"
+        "flarum", "flagrow",
+        "planning", "agile", "kanban"
     ],
     "type": "flarum-extension",
     "license": "proprietary",
@@ -23,7 +21,7 @@
     },
     "extra": {
         "flarum-extension": {
-            "title": "Flagrow Aqueduct",
+            "title": "Flagrow Kanban",
             "icon": {
                 "name": "trello",
                 "backgroundColor": "#f4f4f4",
@@ -33,7 +31,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Flagrow\\Aqueduct\\": "src/"
+            "Flagrow\\Kanban\\": "src/"
         }
     }
 }

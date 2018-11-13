@@ -41,8 +41,8 @@ export default class AddAssigneeModal extends Modal {
 
     title() {
         return this.props.discussion
-            ? app.translator.trans('flagrow-aqueduct.forum.modal.titles.update_recipients', {title: <em>{this.props.discussion.title()}</em>})
-            : app.translator.trans('flagrow-aqueduct.forum.modal.titles.add_recipients');
+            ? app.translator.trans('flagrow-kanban.forum.modal.titles.update_recipients', {title: <em>{this.props.discussion.title()}</em>})
+            : app.translator.trans('flagrow-kanban.forum.modal.titles.add_recipients');
     }
 
     content() {
@@ -56,7 +56,7 @@ export default class AddAssigneeModal extends Modal {
                             className: 'Button Button--primary',
                             disabled: false,
                             icon: 'check',
-                            children: app.translator.trans('flagrow-aqueduct.forum.buttons.submit')
+                            children: app.translator.trans('flagrow-kanban.forum.buttons.submit')
                         })}
                     </div>
                 </div>

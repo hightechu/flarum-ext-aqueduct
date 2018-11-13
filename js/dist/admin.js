@@ -119,13 +119,13 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-flarum_app__WEBPACK_IMPORTED_MODULE_1___default.a.initializers.add('flagrow-aqueduct', function (app) {
+flarum_app__WEBPACK_IMPORTED_MODULE_1___default.a.initializers.add('flagrow-kanban', function (app) {
   // add the permission option to the relative pane.
   Object(flarum_extend__WEBPACK_IMPORTED_MODULE_0__["extend"])(flarum_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_2___default.a.prototype, 'viewItems', function (items) {
     items.add('board-access', {
       icon: 'fab fa-trello',
-      label: app.translator.trans('flagrow-aqueduct.admin.permissions.board-access'),
-      permission: 'discussion.flagrow.aqueduct.board-access',
+      label: app.translator.trans('flagrow-kanban.admin.permissions.board-access'),
+      permission: 'discussion.flagrow.kanban.board-access',
       allowGuest: true
     });
   });
@@ -133,16 +133,16 @@ flarum_app__WEBPACK_IMPORTED_MODULE_1___default.a.initializers.add('flagrow-aque
     // participation on boards.
     items.add('board-user', {
       icon: 'fab fa-trello',
-      label: app.translator.trans('flagrow-aqueduct.admin.permissions.board-user'),
-      permission: 'discussion.flagrow.aqueduct.board-user'
+      label: app.translator.trans('flagrow-kanban.admin.permissions.board-user'),
+      permission: 'discussion.flagrow.kanban.board-user'
     });
   });
   Object(flarum_extend__WEBPACK_IMPORTED_MODULE_0__["extend"])(flarum_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_2___default.a.prototype, 'moderateItems', function (items) {
     // moderates boards.
     items.add('board-admin', {
       icon: 'fab fa-trello',
-      label: app.translator.trans('flagrow-aqueduct.admin.permissions.board-admin'),
-      permission: 'discussion.flagrow.aqueduct.board-admin'
+      label: app.translator.trans('flagrow-kanban.admin.permissions.board-admin'),
+      permission: 'discussion.flagrow.kanban.board-admin'
     });
   });
 });

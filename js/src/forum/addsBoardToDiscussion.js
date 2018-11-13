@@ -20,16 +20,16 @@ export default function () {
 
         tags.forEach(tag => {
             controls.add('board-' + tag.slug(), Button.component({
-                children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.show-board', {tag: tag.name()}),
+                children: app.translator.trans('flagrow-kanban.forum.discussion.buttons.show-board', {tag: tag.name()}),
                 icon: 'trello',
-                onclick: () => m.route(app.route('flagrow.aqueduct.board', {tag: tag.slug()}))
+                onclick: () => m.route(app.route('flagrow.kanban.board', {tag: tag.slug()}))
             }));
         })
 
         if (tags.length > 0) {
             if (discussion.canManageBoard()) {
                 controls.add('assignee', Button.component({
-                    children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.set-assignees'),
+                    children: app.translator.trans('flagrow-kanban.forum.discussion.buttons.set-assignees'),
                     icon: 'user-circle-o',
                     onclick: () => app.modal.show(new AddAssigneeModal({discussion}))
                 }));

@@ -1,6 +1,6 @@
 <?php
 
-namespace Flagrow\Aqueduct\Listeners;
+namespace Flagrow\Kanban\Listeners;
 
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Event\Serializing;
@@ -18,11 +18,11 @@ class AddTagAttributes
     {
         if ($event->isSerializer(TagSerializer::class)) {
             $event->attributes['canManageBoard'] = $event->actor->can(
-                'tag'.$event->model->id.'.discussion.flagrow.aqueduct.board-admin',
+                'tag'.$event->model->id.'.discussion.flagrow.kanban.board-admin',
                 $event->model
             );
             $event->attributes['canUseBoard'] = $event->actor->can(
-                'tag'.$event->model->id.'.discussion.flagrow.aqueduct.board-user',
+                'tag'.$event->model->id.'.discussion.flagrow.kanban.board-user',
                 $event->model
             );
 
@@ -35,10 +35,10 @@ class AddTagAttributes
 
         if ($event->isSerializer(ForumSerializer::class)) {
             $event->attributes['canManageBoard'] = $event->actor->can(
-                'discussion.flagrow.aqueduct.board-admin'
+                'discussion.flagrow.kanban.board-admin'
             );
             $event->attributes['canUseBoard'] = $event->actor->can(
-                'discussion.flagrow.aqueduct.board-user'
+                'discussion.flagrow.kanban.board-user'
             );
         }
     }

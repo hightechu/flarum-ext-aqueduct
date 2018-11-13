@@ -2,13 +2,13 @@ import {extend} from "flarum/extend";
 import app from "flarum/app";
 import PermissionGrid from "flarum/components/PermissionGrid";
 
-app.initializers.add('flagrow-aqueduct', app => {
+app.initializers.add('flagrow-kanban', app => {
     // add the permission option to the relative pane.
     extend(PermissionGrid.prototype, 'viewItems', items => {
         items.add('board-access', {
             icon: 'fab fa-trello',
-            label: app.translator.trans('flagrow-aqueduct.admin.permissions.board-access'),
-            permission: 'discussion.flagrow.aqueduct.board-access',
+            label: app.translator.trans('flagrow-kanban.admin.permissions.board-access'),
+            permission: 'discussion.flagrow.kanban.board-access',
             allowGuest: true
         });
     });
@@ -17,8 +17,8 @@ app.initializers.add('flagrow-aqueduct', app => {
         // participation on boards.
         items.add('board-user', {
             icon: 'fab fa-trello',
-            label: app.translator.trans('flagrow-aqueduct.admin.permissions.board-user'),
-            permission: 'discussion.flagrow.aqueduct.board-user'
+            label: app.translator.trans('flagrow-kanban.admin.permissions.board-user'),
+            permission: 'discussion.flagrow.kanban.board-user'
         });
     });
 
@@ -26,8 +26,8 @@ app.initializers.add('flagrow-aqueduct', app => {
         // moderates boards.
         items.add('board-admin', {
             icon: 'fab fa-trello',
-            label: app.translator.trans('flagrow-aqueduct.admin.permissions.board-admin'),
-            permission: 'discussion.flagrow.aqueduct.board-admin'
+            label: app.translator.trans('flagrow-kanban.admin.permissions.board-admin'),
+            permission: 'discussion.flagrow.kanban.board-admin'
         });
     });
 });

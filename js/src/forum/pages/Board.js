@@ -12,7 +12,7 @@ export default class Board extends Page {
     init() {
         super.init();
 
-        this.bodyClass = 'Aqueduct--Board';
+        this.bodyClass = 'Kanban--Board';
 
         this.draggable = 'cards';
         this.dragging = null;
@@ -64,7 +64,7 @@ export default class Board extends Page {
         if (tag.canManageBoard()) {
             items.add('add-column', Button.component({
                 icon: 'gear',
-                children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.add-column'),
+                children: app.translator.trans('flagrow-kanban.forum.board.buttons.add-column'),
                 onclick: () => app.modal.show(new AddColumnModal({
                     tag: tag,
                     onsubmit: tag => {

@@ -1,5 +1,3 @@
-import {extend} from 'flarum/extend';
-
 import routes from './routes';
 import addsBoardToDiscussion from './addsBoardToDiscussion';
 
@@ -7,7 +5,7 @@ import Model from 'flarum/Model';
 import Tag from 'flarum/tags/models/Tag';
 import Discussion from 'flarum/models/Discussion';
 
-app.initializers.add('flagrow-aqueduct', function(app) {
+app.initializers.add('flagrow-kanban', function(app) {
     Tag.prototype.canManageBoard = Model.attribute('canManageBoard');
     Tag.prototype.canUseBoard = Model.attribute('canUseBoard');
     Tag.prototype.columns = Model.hasMany('columns');
@@ -23,4 +21,4 @@ app.initializers.add('flagrow-aqueduct', function(app) {
     routes(app);
 
     addsBoardToDiscussion();
-});
+}, -10);

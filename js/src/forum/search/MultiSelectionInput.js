@@ -66,7 +66,7 @@ export default class MultiSelectionInput extends Search {
                     element.focus();
                 },
                 type: 'search',
-                placeholder: extractText(app.translator.trans('flagrow-aqueduct.forum.input.search_recipients')),
+                placeholder: extractText(app.translator.trans('flagrow-kanban.forum.input.search_recipients')),
                 value: this.value(),
                 oninput: m.withAttr('value', this.value),
                 onfocus: () => this.hasFocus = true,
