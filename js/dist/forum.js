@@ -1103,13 +1103,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 app.initializers.add('flagrow-kanban', function (app) {
-  console.log(flarum_tags_models_Tag__WEBPACK_IMPORTED_MODULE_3___default.a.prototype);
   flarum_tags_models_Tag__WEBPACK_IMPORTED_MODULE_3___default.a.prototype.canManageBoard = flarum_Model__WEBPACK_IMPORTED_MODULE_2___default.a.attribute('canManageBoard');
   flarum_tags_models_Tag__WEBPACK_IMPORTED_MODULE_3___default.a.prototype.canUseBoard = flarum_Model__WEBPACK_IMPORTED_MODULE_2___default.a.attribute('canUseBoard');
   flarum_tags_models_Tag__WEBPACK_IMPORTED_MODULE_3___default.a.prototype.columns = flarum_Model__WEBPACK_IMPORTED_MODULE_2___default.a.hasMany('columns');
   flarum_tags_models_Tag__WEBPACK_IMPORTED_MODULE_3___default.a.prototype.boardSort = flarum_Model__WEBPACK_IMPORTED_MODULE_2___default.a.attribute('boardSort') || null;
   flarum_tags_models_Tag__WEBPACK_IMPORTED_MODULE_3___default.a.prototype.boardMaxItems = flarum_Model__WEBPACK_IMPORTED_MODULE_2___default.a.attribute('boardMaxItems') || null;
-  console.log(flarum_models_Discussion__WEBPACK_IMPORTED_MODULE_4___default.a.prototype);
   flarum_models_Discussion__WEBPACK_IMPORTED_MODULE_4___default.a.prototype.canViewBoard = flarum_Model__WEBPACK_IMPORTED_MODULE_2___default.a.hasMany('canViewBoard');
   flarum_models_Discussion__WEBPACK_IMPORTED_MODULE_4___default.a.prototype.canUseBoard = flarum_Model__WEBPACK_IMPORTED_MODULE_2___default.a.hasMany('canUseBoard');
   flarum_models_Discussion__WEBPACK_IMPORTED_MODULE_4___default.a.prototype.canManageBoard = flarum_Model__WEBPACK_IMPORTED_MODULE_2___default.a.attribute('canManageBoard');
