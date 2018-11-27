@@ -21,7 +21,7 @@
     },
     "extra": {
         "flarum-extension": {
-            "title": "Flagrow Kanban",
+            "title": "Kanban",
             "icon": {
                 "name": "trello",
                 "backgroundColor": "#f4f4f4",
