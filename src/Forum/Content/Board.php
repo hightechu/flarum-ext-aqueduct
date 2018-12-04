@@ -3,18 +3,13 @@
 namespace Flagrow\Kanban\Forum\Content;
 
 use Flarum\Frontend\Content\ContentInterface;
-use Flarum\Frontend\HtmlDocument;
+use Flarum\Frontend\Document;
 use Flarum\User\Exception\PermissionDeniedException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class Board implements ContentInterface
+class Board
 {
-
-    /**
-     * @param HtmlDocument $document
-     * @param Request      $request
-     */
-    public function __invoke(HtmlDocument $document, Request $request)
+    public function __invoke(Document $document, Request $request)
     {
         /** @var User $actor */
         $actor = $request->getAttribute('actor');
