@@ -129,7 +129,7 @@ flarum_app__WEBPACK_IMPORTED_MODULE_1___default.a.initializers.add('flagrow-aque
       allowGuest: true
     });
   });
-  Object(flarum_extend__WEBPACK_IMPORTED_MODULE_0__["extend"])(flarum_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_2___default.a.prototype, 'createItems', function (items) {
+  Object(flarum_extend__WEBPACK_IMPORTED_MODULE_0__["extend"])(flarum_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_2___default.a.prototype, 'startItems', function (items) {
     // participation on boards.
     items.add('board-user', {
       icon: 'fab fa-trello',

@@ -13,7 +13,7 @@ app.initializers.add('flagrow-aqueduct', app => {
         });
     });
 
-    extend(PermissionGrid.prototype, 'createItems', items => {
+    extend(PermissionGrid.prototype, 'startItems', items => {
         // participation on boards.
         items.add('board-user', {
             icon: 'fab fa-trello',
