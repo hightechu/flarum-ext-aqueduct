@@ -80,6 +80,8 @@ class TagRepository extends NativeTagRepository
     }
 
     /**
+     * Update sorting of columns on board.
+     *
      * @param Tag $board
      * @param array $slugs
      */
@@ -95,6 +97,8 @@ class TagRepository extends NativeTagRepository
     }
 
     /**
+     * Update individual column on board.
+     *
      * @param Tag $board
      * @param Tag $column
      * @param array $pivot

@@ -12,7 +12,7 @@ export default class Card extends Component {
     view() {
         const jumpTo = Math.min(this.discussion.lastPostNumber(), (this.discussion.lastReadPostNumber() || 0) + 1);
 
-        return m('li', {
+        return m('div', {
             className: 'Card' + (this.isUnread ? ' Unread' : ''),
             discussion: this.discussion.id()
         }, m('div', {className: 'Card--Handle'}, [
@@ -32,16 +32,18 @@ export default class Card extends Component {
     footerControls() {
         let items = new ItemList;
 
-        const startUser = this.discussion.user();
+        const user = this.discussion.user();
 
-        items.add('startUser',
-            <a href={startUser ? app.route.user(startUser) : '#'}
+        console.log(this.discussion)
+
+        items.add('user',
+            <a href={user ? app.route.user(user) : '#'}
               className="Card--Author"
               config={function(element) {
                   $(element).tooltip({placement: 'right'});
                   m.route.apply(this, arguments);
               }}>
-            {avatar(startUser, {title: ''})}
+            {avatar(user, {title: ''})}
         </a>);
 
         items.add('count', m('div', {className: 'Card--Replies-Count'}, [

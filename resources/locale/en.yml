@@ -1,4 +1,4 @@
-flagrow-kanban:
+flagrow-aqueduct:
     forum:
         board:
             modals:
@@ -6,6 +6,8 @@ flagrow-kanban:
                     title: Add a column to the board
             buttons:
                 add-column: Add column
+                drag-columns: Order columns
+                fix-columns: Finish column ordering
         discussion:
             buttons:
                 show-board: "Board {tag}"

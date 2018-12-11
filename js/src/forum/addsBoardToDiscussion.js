@@ -3,11 +3,6 @@ import DiscussionPage from "flarum/components/DiscussionPage";
 import Button from "flarum/components/Button";
 import SplitDropdown from "flarum/components/SplitDropdown";
 import ItemList from "flarum/utils/ItemList";
-import avatar from "flarum/helpers/avatar";
-import icon from "flarum/helpers/icon";
-import DiscussionHero from "flarum/components/DiscussionHero";
-import assigneesLabel from "./labels/assigneesLabel";
-import AddAssigneeModal from "./modals/AddAssigneeModal";
 
 export default function () {
 
@@ -18,23 +13,17 @@ export default function () {
 
         let controls = new ItemList;
 
+        tags = tags.filter(tag => tag.canAccessBoard() || tag.canUseBoard() || tag.canManageBoard());
+
         tags.forEach(tag => {
             controls.add('board-' + tag.slug(), Button.component({
-                children: app.translator.trans('flagrow-kanban.forum.discussion.buttons.show-board', {tag: tag.name()}),
+                children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.show-board', {tag: tag.name()}),
                 icon: 'fab fa-trello',
                 onclick: () => m.route(app.route('flagrow.kanban.board', {tag: tag.slug()}))
             }));
         })
 
         if (tags.length > 0) {
-            if (discussion.canManageBoard()) {
-                controls.add('assignee', Button.component({
-                    children: app.translator.trans('flagrow-kanban.forum.discussion.buttons.set-assignees'),
-                    icon: 'fas fa-user-cog',
-                    onclick: () => app.modal.show(new AddAssigneeModal({discussion}))
-                }));
-            }
-
             items.add(
                 'board',
                 SplitDropdown.component({
@@ -45,26 +34,6 @@ export default function () {
                 }),
                 -50
             );
-        }
-    });
-    /**
-     *
-     * Adds User labels on the discussion Hero.
-     */
-    extend(DiscussionHero.prototype, 'items', function(items) {
-        const discussion = this.props.discussion;
-
-        let users = discussion.assignedUsers().map(user => {
-            return avatar(user);
-        });
-        let groups = discussion.assignedGroups().map(group => {
-            return icon(group.icon());
-        });
-
-        const assignees = users + groups;
-
-        if (assignees.length > 0) {
-            items.add('assignees', assigneesLabel(assignees), 3);
         }
     });
 }

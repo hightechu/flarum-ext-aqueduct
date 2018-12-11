@@ -29,7 +29,9 @@ export default class Board extends Page {
         app.setTitle('');
         app.setTitleCount(0);
 
-        if (this.tag.canManageBoard()) {
+        if (this.tag)
+
+        if (this.tag.canUseBoard() || this.tag.canManageBoard()) {
             this.setDraggable();
         }
     }
@@ -63,15 +65,35 @@ export default class Board extends Page {
 
         if (tag.canManageBoard()) {
             items.add('add-column', Button.component({
-                icon: 'gear',
-                children: app.translator.trans('flagrow-kanban.forum.board.buttons.add-column'),
+                icon: 'fas fa-cog',
+                children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.add-column'),
                 onclick: () => app.modal.show(new AddColumnModal({
                     tag: tag,
-                    onsubmit: tag => {
+                    onsubmit: () => {
                         this.refresh(true)
                     }
                 }))
-            }))
+            }));
+
+            if (this.draggable === 'cards') {
+                items.add('drag-columns', Button.component({
+                    icon: 'fas fa-lock-open',
+                    children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.drag-columns'),
+                    onclick: () => {
+                        this.draggable = 'columns';
+                        this.setDraggable();
+                    }
+                }));
+            } else if (this.dragging && this.draggable === 'columns') {
+                items.add('drag-columns', Button.component({
+                    icon: 'fas fa-lock',
+                    children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.fix-columns'),
+                    onclick: () => {
+                        this.draggable = 'cards';
+                        this.setDraggable();
+                    }
+                }));
+            }
         }
 
         return items;
@@ -88,10 +110,11 @@ export default class Board extends Page {
                     style: tag.color() ? 'border-top-color: ' + tag.color() + ';' : ''
                 }, m('h4', [tag.name(), m('span', tag.description())])),
                 m('div', {
-                    className: 'Board--Item-List'
-                }, this.loading || this.discussions[tag.slug()].length == 0 ? '' : m('ul', this.discussions[tag.slug()].map(discussion => {
+                    className: 'Board--Item-List',
+                    slug: tag.slug()
+                }, this.loading || this.discussions[tag.slug()].length == 0 ? '' : this.discussions[tag.slug()].map(discussion => {
                     return Card.component({discussion});
-                })))
+                }))
             ])
         ]);
     }
@@ -181,31 +204,44 @@ export default class Board extends Page {
      * Listens to dragging event and updates the sorting of the columns.
      */
     setDraggable() {
-        if (this.draggable === 'cards' && this.dragging) {
-            sortable('.Board--Item-List');
-        } else if (this.draggable === 'cards') {
-            const sorted = sortable('.Board--Item-List', {
-                // connectWith: 'Board--Connected--Cards',
+        let sorted = [];
+
+        if (this.dragging === null && this.draggable === 'cards') {
+            sorted = sortable('.Board--Item-List', {
+                connectWith: 'Board--Connected--Cards',
                 items: '.Card',
-                handle: '.Card--Handle',
+                // handle: '.Card--Header',
                 placeholder: '<div class="Card Placeholder"></div>',
                 forcePlaceholderSize: true
             });
+
             if (sorted.length > 0) {
-                sorted[0].addEventListener('sortupdate', (e) => {
+                sorted.forEach((sort) => {
+                    sort.addEventListener('sortupdate', (e) => {
+                        const tag = $(e.target).attr('slug');
+                        // prevents updating multiple times
+                        if (tag === $(e.detail.endparent).attr('slug')) {
+                            const sorting = $(e.target).find('.Card').map(function () {
+                                return $(this).attr('discussion');
+                            }).get();
+
+                            this.updateDiscussionSorting(sorting, tag);
+                        }
+                    });
                 });
             }
+        } else if (this.draggable === 'cards') {
+            sortable('.Board--Item-List');
         }
 
-        if (this.draggable === 'columns' && this.dragging) {
-            sortable('.Board--List');
-        } else if (this.draggable === 'columns') {
-            const sorted = sortable('.Board--List', {
+        if (this.dragging === null && this.draggable === 'columns') {
+            sorted = sortable('.Board--List', {
                 items: '.Board--Column',
                 handle: '.Board--Header',
                 placeholder: '<div class="Board--Column Placeholder"></div>',
                 forcePlaceholderSize: true
             });
+
             if (sorted.length > 0) {
                 sorted[0].addEventListener('sortupdate', (e) => {
                     const sorting = $(e.target).find('.Board--Column').map(function () {
@@ -215,9 +251,11 @@ export default class Board extends Page {
                     this.updateColumnSorting(sorting);
                 });
             }
+        } else if (this.draggable === 'columns') {
+            sortable('.Board--List');
         }
 
-        this.dragging = true;
+        this.dragging = (this.dragging === null && sorted.length > 0) || (this.dragging !== null && true);
     }
 
     updateColumnSorting(sorting) {
@@ -231,5 +269,34 @@ export default class Board extends Page {
 
             this.setDraggable()
         })
+    }
+
+    updateDiscussionSorting(sorting, slug) {
+        const tag = app.store.getBy('tags', 'slug', slug);
+
+        if (sorting.length > 0) {
+            sorting.forEach(id => {
+                const discussion = app.store.getById('discussions', id);
+                const tags = discussion.tags();
+
+                const data = {
+                    relationships: {
+                        tags: []
+                    }
+                }
+
+                // drop all tags from discussion that are part of this board as column
+                tags.forEach(t => {
+                    if (this.tags.indexOf(t) < 0 && t.id() !== tag.id()) {
+                        data.relationships.tags.push(t);
+                    }
+                })
+
+                // then re-add that tag so it can be saved
+                data.relationships.tags.push(tag);
+
+                discussion.save(data);
+            })
+        }
     }
 }
