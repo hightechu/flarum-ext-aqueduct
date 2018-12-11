@@ -1,6 +1,6 @@
 <?php
 
-namespace Flagrow\Kanban\Listeners;
+namespace Flagrow\Aqueduct\Listeners;
 
 use Flarum\Api\Controller\ShowDiscussionController;
 use Flarum\Api\Serializer\DiscussionSerializer;

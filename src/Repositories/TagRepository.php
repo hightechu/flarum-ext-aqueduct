@@ -1,6 +1,6 @@
 <?php
 
-namespace Flagrow\Kanban\Repositories;
+namespace Flagrow\Aqueduct\Repositories;
 
 use Flarum\Discussion\Discussion;
 use Flarum\User\User;

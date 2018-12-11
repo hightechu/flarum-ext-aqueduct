@@ -1,12 +1,12 @@
 <?php
 
-namespace Flagrow\Kanban\Api\Controllers;
+namespace Flagrow\Aqueduct\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractShowController;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
 use Flarum\Tags\Api\Serializer\TagSerializer;
-use Flagrow\Kanban\Repositories\TagRepository;
+use Flagrow\Aqueduct\Repositories\TagRepository;
 use Flarum\Tags\Tag;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;

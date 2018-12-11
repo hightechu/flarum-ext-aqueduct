@@ -1,5 +1,5 @@
 {
-    "name": "flagrow/kanban",
+    "name": "flagrow/aqueduct",
     "description": "The planning tool extension for your Flarum forum.",
     "keywords": [
         "extension",
@@ -21,7 +21,7 @@
     },
     "extra": {
         "flarum-extension": {
-            "title": "Kanban",
+            "title": "Aqueduct",
             "icon": {
                 "name": "trello",
                 "backgroundColor": "#f4f4f4",
@@ -31,7 +31,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Flagrow\\Kanban\\": "src/"
+            "Flagrow\\Aqueduct\\": "src/"
         }
     }
 }

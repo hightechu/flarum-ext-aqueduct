@@ -1,10 +1,10 @@
 <?php
 
-namespace Flagrow\Kanban\Api\Controllers;
+namespace Flagrow\Aqueduct\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractListController;
 use Flarum\Api\Serializer\DiscussionSerializer;
-use Flagrow\Kanban\Repositories\TagRepository;
+use Flagrow\Aqueduct\Repositories\TagRepository;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;

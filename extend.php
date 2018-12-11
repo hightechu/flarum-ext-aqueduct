@@ -1,6 +1,6 @@
 <?php
 
-namespace Flagrow\Kanban;
+namespace Flagrow\Aqueduct;
 
 use Flarum\Extend;
 use Illuminate\Contracts\Events\Dispatcher;

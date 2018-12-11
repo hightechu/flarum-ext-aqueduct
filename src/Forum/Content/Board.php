@@ -1,6 +1,6 @@
 <?php
 
-namespace Flagrow\Kanban\Forum\Content;
+namespace Flagrow\Aqueduct\Forum\Content;
 
 use Flarum\Frontend\Content\ContentInterface;
 use Flarum\Frontend\Document;
