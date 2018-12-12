@@ -34,8 +34,6 @@ export default class Card extends Component {
 
         const user = this.discussion.user();
 
-        console.log(this.discussion)
-
         items.add('user',
             <a href={user ? app.route.user(user) : '#'}
               className="Card--Author"

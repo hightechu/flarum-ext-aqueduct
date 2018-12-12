@@ -1014,7 +1014,6 @@ function (_Component) {
   _proto.footerControls = function footerControls() {
     var items = new flarum_utils_ItemList__WEBPACK_IMPORTED_MODULE_2___default.a();
     var user = this.discussion.user();
-    console.log(this.discussion);
     items.add('user', m("a", {
       href: user ? app.route.user(user) : '#',
       className: "Card--Author",

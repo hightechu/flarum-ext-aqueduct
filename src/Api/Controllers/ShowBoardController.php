@@ -22,7 +22,7 @@ class ShowBoardController extends AbstractListController
      *
      * @var array
      */
-    public $include = ['tags', 'startUser'];
+    public $include = ['tags', 'user'];
 
     public function __construct(TagRepository $tags)
     {
