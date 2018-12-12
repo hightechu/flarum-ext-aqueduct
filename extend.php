@@ -21,6 +21,7 @@ return [
         $events->subscribe(Listeners\AddTagRelationships::class);
         $events->subscribe(Listeners\AddTagAttributes::class);
         $events->subscribe(Listeners\AddDiscussionRelationships::class);
+        $events->subscribe(Listeners\PersistDiscussionSorting::class);
     }))
 ];
 

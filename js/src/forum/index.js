@@ -4,8 +4,11 @@ import addsBoardToDiscussion from './addsBoardToDiscussion';
 import Model from 'flarum/Model';
 import Tag from 'flarum/tags/models/Tag';
 import Discussion from 'flarum/models/Discussion';
+import Sorting from './models/Sorting';
 
 app.initializers.add('flagrow-aqueduct', function(app) {
+    app.store.models.discussionSorting = Sorting;
+
     Tag.prototype.canAccessBoard = Model.attribute('canAccessBoard');
     Tag.prototype.canUseBoard = Model.attribute('canUseBoard');
     Tag.prototype.canManageBoard = Model.attribute('canManageBoard');
@@ -18,6 +21,7 @@ app.initializers.add('flagrow-aqueduct', function(app) {
     Discussion.prototype.canManageBoard = Model.attribute('canManageBoard');
     Discussion.prototype.assignedUsers = Model.hasMany('assignedUsers');
     Discussion.prototype.assignedGroups = Model.hasMany('assignedGroups');
+    Discussion.prototype.discussionSorting = Model.hasMany('discussionSorting');
 
     routes(app);
 

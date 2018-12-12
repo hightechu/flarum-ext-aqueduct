@@ -275,13 +275,14 @@ export default class Board extends Page {
         const tag = app.store.getBy('tags', 'slug', slug);
 
         if (sorting.length > 0) {
-            sorting.forEach(id => {
+            sorting.forEach((id, i) => {
                 const discussion = app.store.getById('discussions', id);
                 const tags = discussion.tags();
 
                 const data = {
                     relationships: {
-                        tags: []
+                        tags: [],
+                        discussionSorting: []
                     }
                 }
 
@@ -294,6 +295,14 @@ export default class Board extends Page {
 
                 // then re-add that tag so it can be saved
                 data.relationships.tags.push(tag);
+
+                const sort = app.store.createRecord('discussionSorting', {
+                    sort: i,
+                    board_tag_id: this.tag.id(),
+                    column_tag_id: tag.id()
+                });
+
+                data.relationships.discussionSorting.push(sort);
 
                 discussion.save(data);
             })

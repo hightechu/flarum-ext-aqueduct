@@ -18,15 +18,15 @@ class AddTagAttributes
     {
         if ($event->isSerializer(TagSerializer::class)) {
             $event->attributes['canAccessBoard'] = $event->actor->can(
-                'tag'.$event->model->id.'.discussion.flagrow.kanban.board-access',
+                'tag'.$event->model->id.'.discussion.flagrow.aqueduct.board-access',
                 $event->model
             );
             $event->attributes['canUseBoard'] = $event->actor->can(
-                'tag'.$event->model->id.'.discussion.flagrow.kanban.board-user',
+                'tag'.$event->model->id.'.discussion.flagrow.aqueduct.board-user',
                 $event->model
             );
             $event->attributes['canManageBoard'] = $event->actor->can(
-                'tag'.$event->model->id.'.discussion.flagrow.kanban.board-admin',
+                'tag'.$event->model->id.'.discussion.flagrow.aqueduct.board-admin',
                 $event->model
             );
 
@@ -39,13 +39,13 @@ class AddTagAttributes
 
         if ($event->isSerializer(ForumSerializer::class)) {
             $event->attributes['canUseBoard'] = $event->actor->can(
-                'discussion.flagrow.kanban.board-user'
+                'discussion.flagrow.aqueduct.board-user'
             );
             $event->attributes['canManageBoard'] = $event->actor->can(
-                'discussion.flagrow.kanban.board-admin'
+                'discussion.flagrow.aqueduct.board-admin'
             );
             $event->attributes['canAccessBoard'] = $event->actor->can(
-                'discussion.flagrow.kanban.board-access'
+                'discussion.flagrow.aqueduct.board-access'
             );
         }
     }
