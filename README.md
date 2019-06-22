@@ -4,7 +4,7 @@
 
 By relying heavily on the tags extension you can create a board with todo, doing, done style columns inside any primary tag. Using secondary tags as the columns gives you complete control. You can drag columns and cards any way you like and it even offers sensible permissions.
 
-> This is a [premium extension](https://flagrow.io/about/premium-extensions). Installation and updating requires an [active subscription](https://flagrow.io/extensions/flagrow/aqueduct/subscription).
+> This is a [premium extension](https://flagrow.io/about/premium-extensions). Installation and updating requires an [active subscription](https://flagrow.io/extensions/hyn/aqueduct/subscription).
 
 ## Installation
 
