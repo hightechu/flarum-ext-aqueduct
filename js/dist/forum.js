@@ -1024,11 +1024,13 @@ function (_Component) {
         m.route.apply(this, arguments);
       }
     }, flarum_helpers_avatar__WEBPACK_IMPORTED_MODULE_4___default()(user, {
-      title: ''
-    })));
+      title: user.username()
+    }), m("span", {
+      className: "Card--Author-Username"
+    }, user.username())));
     items.add('count', m('div', {
       className: 'Card--Replies-Count'
-    }, [flarum_helpers_icon__WEBPACK_IMPORTED_MODULE_3___default()(this.isUnread ? 'commenting-o' : 'comment-o'), this.discussion[this.isUnread ? 'unreadCount' : 'replyCount']()]));
+    }, [flarum_helpers_icon__WEBPACK_IMPORTED_MODULE_3___default()(this.isUnread ? 'fas fa-comments' : 'fas fa-comment-slash'), this.discussion[this.isUnread ? 'unreadCount' : 'replyCount']()]));
     return items;
   };
 
@@ -1146,6 +1148,10 @@ function (_Component) {
   _proto.sortable = function sortable() {
     var _this3 = this;
 
+    if (!this.board.canUseBoard()) {
+      return;
+    }
+
     var selector = '.Board--Item-List[slug=' + this.tag.slug() + ']';
 
     if (!this.dragging && this.draggingEnabled && this.sorted.length === 0) {
@@ -1167,7 +1173,6 @@ function (_Component) {
           _this3.updateDiscussionSorting(sorting, tag);
         }
       });
-      console.debug('Readied up sorting for ' + this.tag.name());
     } else if (this.draggingEnabled) {
       html5sortable__WEBPACK_IMPORTED_MODULE_6___default()(selector);
     }
@@ -1491,19 +1496,20 @@ function (_Page) {
   };
 
   _proto.config = function config(isInitialized, context) {
+    var _this = this;
+
     _Page.prototype.config.apply(this, arguments);
 
     if (isInitialized) return;
     app.setTitle('');
     app.setTitleCount(0);
-
-    if (this.tag.canUseBoard() || this.tag.canManageBoard()) {
-      this.setDraggable();
-    }
+    this.$().ready(function () {
+      _this.setDraggable();
+    });
   };
 
   _proto.view = function view() {
-    var _this = this;
+    var _this2 = this;
 
     return m('div', {
       className: 'Board'
@@ -1516,7 +1522,7 @@ function (_Page) {
       className: 'Button',
       children: this.tag.name(),
       onclick: function onclick() {
-        return m.route('/t/' + _this.tag.slug());
+        return m.route('/t/' + _this2.tag.slug());
       }
     }), this.controls().isEmpty() ? [] : flarum_components_SplitDropdown__WEBPACK_IMPORTED_MODULE_3___default.a.component({
       children: this.controls().toArray(),
@@ -1525,30 +1531,32 @@ function (_Page) {
       buttonClassName: 'Button--primary'
     }), this.dragging && this.draggable === 'columns' ? [flarum_components_Button__WEBPACK_IMPORTED_MODULE_4___default.a.component({
       icon: 'fas fa-lock',
-      className: 'Button',
+      className: 'Button Button--danger',
       children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.fix-columns'),
       onclick: function onclick() {
-        _this.draggable = 'cards';
+        _this2.updateColumnSorting();
 
-        _this.setDraggable();
+        _this2.draggable = 'cards';
+
+        _this2.setDraggable();
       }
     })] : []])), m('div', {
       className: 'Board--List'
     }, (this.loading ? [] : this.tags).map(function (tag) {
       return _components_Column__WEBPACK_IMPORTED_MODULE_8__["default"].component({
-        board: _this.tag,
+        board: _this2.tag,
         tag: tag,
-        discussions: _this.discussions[tag.slug()] || [],
-        loading: _this.loading,
-        dragging: _this.dragging,
-        draggable: _this.draggable,
-        tags: _this.tags
+        discussions: _this2.discussions[tag.slug()] || [],
+        loading: _this2.loading,
+        dragging: _this2.dragging,
+        draggable: _this2.draggable,
+        tags: _this2.tags
       });
     }))]);
   };
 
   _proto.controls = function controls() {
-    var _this2 = this;
+    var _this3 = this;
 
     var items = new flarum_utils_ItemList__WEBPACK_IMPORTED_MODULE_5___default.a();
     var tag = this.tag;
@@ -1561,7 +1569,7 @@ function (_Page) {
           return app.modal.show(new _modals_AddColumnModal__WEBPACK_IMPORTED_MODULE_6__["default"]({
             tag: tag,
             onsubmit: function onsubmit() {
-              _this2.refresh(true);
+              _this3.refresh(true);
             }
           }));
         }
@@ -1572,9 +1580,9 @@ function (_Page) {
           icon: 'fas fa-lock-open',
           children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.drag-columns'),
           onclick: function onclick() {
-            _this2.draggable = 'columns';
+            _this3.draggable = 'columns';
 
-            _this2.setDraggable();
+            _this3.setDraggable();
           }
         }));
       }
@@ -1590,7 +1598,7 @@ function (_Page) {
 
 
   _proto.refresh = function refresh(clear) {
-    var _this3 = this;
+    var _this4 = this;
 
     if (clear === void 0) {
       clear = true;
@@ -1615,16 +1623,16 @@ function (_Page) {
     });
     this.load().then(function (results) {
       app.store.pushPayload(results);
-      _this3.discussions = {};
+      _this4.discussions = {};
 
-      _this3.parseResults(results.data);
+      _this4.parseResults(results.data);
 
-      _this3.setDraggable();
+      _this4.setDraggable();
     }, function () {
-      _this3.loading = false;
+      _this4.loading = false;
       m.redraw();
 
-      _this3.setDraggable();
+      _this4.setDraggable();
     });
   };
   /**
@@ -1636,17 +1644,17 @@ function (_Page) {
 
 
   _proto.parseResults = function parseResults(results) {
-    var _this4 = this;
+    var _this5 = this;
 
     this.tags.forEach(function (tag) {
-      _this4.discussions[tag.slug()] = [];
+      _this5.discussions[tag.slug()] = [];
       results.forEach(function (discussion) {
         discussion = app.store.getById(discussion.type, discussion.id);
 
         if (discussion.tags().map(function (tag) {
           return tag.id();
         }).indexOf(tag.id()) != -1) {
-          _this4.discussions[tag.slug()].push(discussion);
+          _this5.discussions[tag.slug()].push(discussion);
         }
       });
     });
@@ -1671,7 +1679,9 @@ function (_Page) {
 
 
   _proto.setDraggable = function setDraggable() {
-    var _this5 = this;
+    if (!this.tag.canManageBoard()) {
+      return;
+    }
 
     var sorted = [];
 
@@ -1682,16 +1692,6 @@ function (_Page) {
         placeholder: '<div class="Board--Column Placeholder"></div>',
         forcePlaceholderSize: true
       });
-
-      if (sorted.length > 0) {
-        this.sorted[0].addEventListener('sortupdate', function (e) {
-          var sorting = $(e.target).find('.Board--Column').map(function () {
-            return $(this).attr('slug');
-          }).get();
-
-          _this5.updateColumnSorting(sorting);
-        });
-      }
     } else if (this.draggable === 'columns') {
       html5sortable__WEBPACK_IMPORTED_MODULE_1___default()('.Board--List');
     } else {
@@ -1701,9 +1701,12 @@ function (_Page) {
     this.dragging = this.dragging === null && sorted.length > 0 || this.dragging !== null;
   };
 
-  _proto.updateColumnSorting = function updateColumnSorting(sorting) {
+  _proto.updateColumnSorting = function updateColumnSorting() {
     var _this6 = this;
 
+    var sorting = this.$().find('.Board--Column').map(function () {
+      return $(this).attr('slug');
+    }).get();
     return app.request({
       method: 'post',
       url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug() + '/sorting',

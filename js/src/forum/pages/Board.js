@@ -29,9 +29,10 @@ export default class Board extends Page {
         app.setTitle('');
         app.setTitleCount(0);
 
-        if (this.tag.canUseBoard() || this.tag.canManageBoard()) {
+        this.$().ready(() => {
             this.setDraggable();
-        }
+        });
+
     }
 
     view() {
@@ -57,9 +58,11 @@ export default class Board extends Page {
                 this.dragging && this.draggable === 'columns' ? [
                     Button.component({
                         icon: 'fas fa-lock',
-                        className: 'Button',
+                        className: 'Button Button--danger',
                         children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.fix-columns'),
                         onclick: () => {
+                            this.updateColumnSorting()
+
                             this.draggable = 'cards';
                             this.setDraggable();
                         }
@@ -198,6 +201,10 @@ export default class Board extends Page {
      * Listens to dragging event and updates the sorting of the columns.
      */
     setDraggable() {
+        if (!this.tag.canManageBoard()) {
+            return;
+        }
+
         let sorted = [];
 
         if (! this.dragging && this.draggable === 'columns') {
@@ -207,16 +214,6 @@ export default class Board extends Page {
                 placeholder: '<div class="Board--Column Placeholder"></div>',
                 forcePlaceholderSize: true
             });
-
-            if (sorted.length > 0) {
-                this.sorted[0].addEventListener('sortupdate', (e) => {
-                    const sorting = $(e.target).find('.Board--Column').map(function () {
-                        return $(this).attr('slug');
-                    }).get();
-
-                    this.updateColumnSorting(sorting);
-                });
-            }
         } else if (this.draggable === 'columns') {
             sortable('.Board--List');
         } else {
@@ -226,7 +223,11 @@ export default class Board extends Page {
         this.dragging = (this.dragging === null && sorted.length > 0) || this.dragging !== null;
     }
 
-    updateColumnSorting(sorting) {
+    updateColumnSorting() {
+        const sorting = this.$().find('.Board--Column').map(function () {
+            return $(this).attr('slug');
+        }).get();
+
         return app.request({
             method: 'post',
             url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug() + '/sorting',

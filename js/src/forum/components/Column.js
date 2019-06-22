@@ -74,6 +74,10 @@ export default class Column extends Component {
     }
 
     sortable() {
+        if (! this.board.canUseBoard()) {
+            return;
+        }
+
         const selector = '.Board--Item-List[slug=' + this.tag.slug() + ']';
 
         if (!this.dragging && this.draggingEnabled && this.sorted.length === 0) {
@@ -96,8 +100,6 @@ export default class Column extends Component {
                     this.updateDiscussionSorting(sorting, tag);
                 }
             });
-
-            console.debug('Readied up sorting for ' + this.tag.name());
         } else if (this.draggingEnabled) {
             sortable(selector);
         }

@@ -41,11 +41,12 @@ export default class Card extends Component {
                   $(element).tooltip({placement: 'right'});
                   m.route.apply(this, arguments);
               }}>
-            {avatar(user, {title: ''})}
+            {avatar(user, {title: user.username()})}
+            <span className="Card--Author-Username">{user.username()}</span>
         </a>);
 
         items.add('count', m('div', {className: 'Card--Replies-Count'}, [
-            icon(this.isUnread ? 'commenting-o' : 'comment-o'),
+            icon(this.isUnread ? 'fas fa-comments' : 'fas fa-comment-slash'),
             this.discussion[this.isUnread ? 'unreadCount' : 'replyCount']()
         ]));
 
