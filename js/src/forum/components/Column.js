@@ -3,6 +3,7 @@ import SplitDropdown from 'flarum/components/SplitDropdown';
 import Button from 'flarum/components/Button';
 import ItemList from 'flarum/utils/ItemList';
 import Card from '../components/Card';
+import sortable from "html5sortable";
 
 
 export default class Column extends Component {
@@ -11,6 +12,14 @@ export default class Column extends Component {
         this.tag = this.props.tag;
         this.discussions = this.props.discussions;
         this.loading = this.props.loading;
+        this.dragging = this.props.dragging;
+        this.draggingEnabled = this.props.draggable === 'cards';
+        this.tags = this.props.tags;
+        this.sorted = [];
+
+        this.$().ready(() => {
+            this.sortable();
+        });
     }
 
     view() {
@@ -64,6 +73,38 @@ export default class Column extends Component {
         return items;
     }
 
+    sortable() {
+        const selector = '.Board--Item-List[slug=' + this.tag.slug() + ']';
+
+        if (!this.dragging && this.draggingEnabled && this.sorted.length === 0) {
+            this.sorted = sortable(selector, {
+                connectWith: '.Board--Item-List',
+                items: '.Card',
+                // handle: '.Card--Header',
+                placeholder: '<div class="Card Placeholder"></div>',
+                forcePlaceholderSize: true
+            });
+
+            this.sorted[0].addEventListener('sortupdate', (e) => {
+                const tag = $(e.target).attr('slug');
+                // prevents updating multiple times
+                if (tag === $(e.detail.endparent).attr('slug')) {
+                    const sorting = $(e.target).find('.Card').map(function () {
+                        return $(this).attr('discussion');
+                    }).get();
+
+                    this.updateDiscussionSorting(sorting, tag);
+                }
+            });
+
+            console.debug('Readied up sorting for ' + this.tag.name());
+        } else if (this.draggingEnabled) {
+            sortable(selector);
+        }
+
+        this.dragging = (this.dragging === null && this.sorted.length > 0) || this.dragging !== null;
+    }
+
     delete() {
         const board = this.board;
         const column = this.tag;
@@ -76,5 +117,34 @@ export default class Column extends Component {
 
             m.redraw();
         });
+    }
+
+    updateDiscussionSorting(sorting, slug) {
+        const tag = app.store.getBy('tags', 'slug', slug);
+
+        if (sorting.length > 0) {
+            sorting.forEach(id => {
+                const discussion = app.store.getById('discussions', id);
+                const tags = discussion.tags();
+
+                const data = {
+                    relationships: {
+                        tags: []
+                    }
+                }
+
+                // drop all tags from discussion that are part of this board as column
+                tags.forEach(t => {
+                    if (this.tags.indexOf(t) < 0 && t.id() !== tag.id()) {
+                        data.relationships.tags.push(t);
+                    }
+                })
+
+                // then re-add that tag so it can be saved
+                data.relationships.tags.push(tag);
+
+                discussion.save(data);
+            })
+        }
     }
 }

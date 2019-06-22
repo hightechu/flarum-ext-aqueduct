@@ -73,7 +73,10 @@ export default class Board extends Page {
                     board: this.tag,
                     tag,
                     discussions: this.discussions[tag.slug()] || [],
-                    loading: this.loading
+                    loading: this.loading,
+                    dragging: this.dragging,
+                    draggable: this.draggable,
+                    tags: this.tags
                 });
             }))
         ])
@@ -197,37 +200,7 @@ export default class Board extends Page {
     setDraggable() {
         let sorted = [];
 
-        if (this.dragging === null && this.draggable === 'cards') {
-            sorted = sortable('.Board--Item-List', {
-                connectWith: 'Board--Connected--Cards',
-                items: '.Card',
-                // handle: '.Card--Header',
-                placeholder: '<div class="Card Placeholder"></div>',
-                forcePlaceholderSize: true
-            });
-
-            if (sorted.length > 0) {
-                sorted.forEach((sort) => {
-                    sort.addEventListener('sortupdate', (e) => {
-                        const tag = $(e.target).attr('slug');
-                        // prevents updating multiple times
-                        if (tag === $(e.detail.endparent).attr('slug')) {
-                            const sorting = $(e.target).find('.Card').map(function () {
-                                return $(this).attr('discussion');
-                            }).get();
-
-                            this.updateDiscussionSorting(sorting, tag);
-                        }
-                    });
-                });
-            }
-        } else if (this.draggable === 'cards') {
-            sortable('.Board--Item-List');
-        } else {
-            sortable('.Board--Item-List');
-        }
-
-        if (this.dragging === null && this.draggable === 'columns') {
+        if (! this.dragging && this.draggable === 'columns') {
             sorted = sortable('.Board--List', {
                 items: '.Board--Column',
                 handle: '.Board--Header',
@@ -236,7 +209,7 @@ export default class Board extends Page {
             });
 
             if (sorted.length > 0) {
-                sorted[0].addEventListener('sortupdate', (e) => {
+                this.sorted[0].addEventListener('sortupdate', (e) => {
                     const sorting = $(e.target).find('.Board--Column').map(function () {
                         return $(this).attr('slug');
                     }).get();
@@ -266,32 +239,5 @@ export default class Board extends Page {
         })
     }
 
-    updateDiscussionSorting(sorting, slug) {
-        const tag = app.store.getBy('tags', 'slug', slug);
 
-        if (sorting.length > 0) {
-            sorting.forEach(id => {
-                const discussion = app.store.getById('discussions', id);
-                const tags = discussion.tags();
-
-                const data = {
-                    relationships: {
-                        tags: []
-                    }
-                }
-
-                // drop all tags from discussion that are part of this board as column
-                tags.forEach(t => {
-                    if (this.tags.indexOf(t) < 0 && t.id() !== tag.id()) {
-                        data.relationships.tags.push(t);
-                    }
-                })
-
-                // then re-add that tag so it can be saved
-                data.relationships.tags.push(tag);
-
-                discussion.save(data);
-            })
-        }
-    }
 }

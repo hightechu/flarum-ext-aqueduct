@@ -1059,6 +1059,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var flarum_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! flarum/utils/ItemList */ "flarum/utils/ItemList");
 /* harmony import */ var flarum_utils_ItemList__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(flarum_utils_ItemList__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _components_Card__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../components/Card */ "./src/forum/components/Card.js");
+/* harmony import */ var html5sortable__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! html5sortable */ "./node_modules/html5sortable/dist/html.sortable.js");
+/* harmony import */ var html5sortable__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(html5sortable__WEBPACK_IMPORTED_MODULE_6__);
+
 
 
 
@@ -1078,10 +1081,19 @@ function (_Component) {
   var _proto = Column.prototype;
 
   _proto.init = function init() {
+    var _this = this;
+
     this.board = this.props.board;
     this.tag = this.props.tag;
     this.discussions = this.props.discussions;
     this.loading = this.props.loading;
+    this.dragging = this.props.dragging;
+    this.draggingEnabled = this.props.draggable === 'cards';
+    this.tags = this.props.tags;
+    this.sorted = [];
+    this.$().ready(function () {
+      _this.sortable();
+    });
   };
 
   _proto.view = function view() {
@@ -1109,7 +1121,7 @@ function (_Component) {
   };
 
   _proto.controls = function controls() {
-    var _this = this;
+    var _this2 = this;
 
     var tag = this.tag;
     var items = new flarum_utils_ItemList__WEBPACK_IMPORTED_MODULE_4___default.a();
@@ -1122,7 +1134,7 @@ function (_Component) {
           if (confirm(app.translator.trans('flagrow-aqueduct.forum.board.buttons.remove-column-confirmation', {
             tag: tag.name()
           }))) {
-            _this.delete();
+            _this2.delete();
           }
         }
       }));
@@ -1131,8 +1143,40 @@ function (_Component) {
     return items;
   };
 
+  _proto.sortable = function sortable() {
+    var _this3 = this;
+
+    var selector = '.Board--Item-List[slug=' + this.tag.slug() + ']';
+
+    if (!this.dragging && this.draggingEnabled && this.sorted.length === 0) {
+      this.sorted = html5sortable__WEBPACK_IMPORTED_MODULE_6___default()(selector, {
+        connectWith: '.Board--Item-List',
+        items: '.Card',
+        // handle: '.Card--Header',
+        placeholder: '<div class="Card Placeholder"></div>',
+        forcePlaceholderSize: true
+      });
+      this.sorted[0].addEventListener('sortupdate', function (e) {
+        var tag = $(e.target).attr('slug'); // prevents updating multiple times
+
+        if (tag === $(e.detail.endparent).attr('slug')) {
+          var sorting = $(e.target).find('.Card').map(function () {
+            return $(this).attr('discussion');
+          }).get();
+
+          _this3.updateDiscussionSorting(sorting, tag);
+        }
+      });
+      console.debug('Readied up sorting for ' + this.tag.name());
+    } else if (this.draggingEnabled) {
+      html5sortable__WEBPACK_IMPORTED_MODULE_6___default()(selector);
+    }
+
+    this.dragging = this.dragging === null && this.sorted.length > 0 || this.dragging !== null;
+  };
+
   _proto.delete = function _delete() {
-    var _this2 = this;
+    var _this4 = this;
 
     var board = this.board;
     var column = this.tag;
@@ -1140,9 +1184,36 @@ function (_Component) {
       method: 'DELETE',
       url: app.forum.attribute('apiUrl') + '/board/' + board.slug() + '/columns/' + column.slug()
     }).then(function (results) {
-      _this2.tag = app.store.pushPayload(results);
+      _this4.tag = app.store.pushPayload(results);
       m.redraw();
     });
+  };
+
+  _proto.updateDiscussionSorting = function updateDiscussionSorting(sorting, slug) {
+    var _this5 = this;
+
+    var tag = app.store.getBy('tags', 'slug', slug);
+
+    if (sorting.length > 0) {
+      sorting.forEach(function (id) {
+        var discussion = app.store.getById('discussions', id);
+        var tags = discussion.tags();
+        var data = {
+          relationships: {
+            tags: []
+          } // drop all tags from discussion that are part of this board as column
+
+        };
+        tags.forEach(function (t) {
+          if (_this5.tags.indexOf(t) < 0 && t.id() !== tag.id()) {
+            data.relationships.tags.push(t);
+          }
+        }); // then re-add that tag so it can be saved
+
+        data.relationships.tags.push(tag);
+        discussion.save(data);
+      });
+    }
   };
 
   return Column;
@@ -1468,7 +1539,10 @@ function (_Page) {
         board: _this.tag,
         tag: tag,
         discussions: _this.discussions[tag.slug()] || [],
-        loading: _this.loading
+        loading: _this.loading,
+        dragging: _this.dragging,
+        draggable: _this.draggable,
+        tags: _this.tags
       });
     }))]);
   };
@@ -1601,37 +1675,7 @@ function (_Page) {
 
     var sorted = [];
 
-    if (this.dragging === null && this.draggable === 'cards') {
-      sorted = html5sortable__WEBPACK_IMPORTED_MODULE_1___default()('.Board--Item-List', {
-        connectWith: 'Board--Connected--Cards',
-        items: '.Card',
-        // handle: '.Card--Header',
-        placeholder: '<div class="Card Placeholder"></div>',
-        forcePlaceholderSize: true
-      });
-
-      if (sorted.length > 0) {
-        sorted.forEach(function (sort) {
-          sort.addEventListener('sortupdate', function (e) {
-            var tag = $(e.target).attr('slug'); // prevents updating multiple times
-
-            if (tag === $(e.detail.endparent).attr('slug')) {
-              var sorting = $(e.target).find('.Card').map(function () {
-                return $(this).attr('discussion');
-              }).get();
-
-              _this5.updateDiscussionSorting(sorting, tag);
-            }
-          });
-        });
-      }
-    } else if (this.draggable === 'cards') {
-      html5sortable__WEBPACK_IMPORTED_MODULE_1___default()('.Board--Item-List');
-    } else {
-      html5sortable__WEBPACK_IMPORTED_MODULE_1___default()('.Board--Item-List');
-    }
-
-    if (this.dragging === null && this.draggable === 'columns') {
+    if (!this.dragging && this.draggable === 'columns') {
       sorted = html5sortable__WEBPACK_IMPORTED_MODULE_1___default()('.Board--List', {
         items: '.Board--Column',
         handle: '.Board--Header',
@@ -1640,7 +1684,7 @@ function (_Page) {
       });
 
       if (sorted.length > 0) {
-        sorted[0].addEventListener('sortupdate', function (e) {
+        this.sorted[0].addEventListener('sortupdate', function (e) {
           var sorting = $(e.target).find('.Board--Column').map(function () {
             return $(this).attr('slug');
           }).get();
@@ -1670,33 +1714,6 @@ function (_Page) {
 
       _this6.setDraggable();
     });
-  };
-
-  _proto.updateDiscussionSorting = function updateDiscussionSorting(sorting, slug) {
-    var _this7 = this;
-
-    var tag = app.store.getBy('tags', 'slug', slug);
-
-    if (sorting.length > 0) {
-      sorting.forEach(function (id) {
-        var discussion = app.store.getById('discussions', id);
-        var tags = discussion.tags();
-        var data = {
-          relationships: {
-            tags: []
-          } // drop all tags from discussion that are part of this board as column
-
-        };
-        tags.forEach(function (t) {
-          if (_this7.tags.indexOf(t) < 0 && t.id() !== tag.id()) {
-            data.relationships.tags.push(t);
-          }
-        }); // then re-add that tag so it can be saved
-
-        data.relationships.tags.push(tag);
-        discussion.save(data);
-      });
-    }
   };
 
   return Board;
