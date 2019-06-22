@@ -1,12 +1,12 @@
 import sortable from 'html5sortable';
 
-import {extend} from "flarum/extend";
 import Page from "flarum/components/Page";
 import SplitDropdown from 'flarum/components/SplitDropdown';
 import Button from 'flarum/components/Button';
 import ItemList from 'flarum/utils/ItemList';
 import AddColumnModal from '../modals/AddColumnModal';
 import Card from '../components/Card';
+import Column from '../components/Column';
 
 export default class Board extends Page {
     init() {
@@ -29,8 +29,6 @@ export default class Board extends Page {
         app.setTitle('');
         app.setTitleCount(0);
 
-        if (this.tag)
-
         if (this.tag.canUseBoard() || this.tag.canManageBoard()) {
             this.setDraggable();
         }
@@ -43,18 +41,40 @@ export default class Board extends Page {
             m('div', {
                 className: 'Board--Controls'
             }, m('div', {className: 'container'}, [
+                Button.component({
+                    icon: 'fas fa-tag',
+                    className: 'Button',
+                    children: this.tag.name(),
+                    onclick: () => m.route('/t/' + this.tag.slug())
+                }),
                 this.controls().isEmpty() ? [] :
                     SplitDropdown.component({
                         children: this.controls().toArray(),
                         icon: 'ellipsis-v',
                         className: 'App-primaryControl',
                         buttonClassName: 'Button--primary'
+                    }),
+                this.dragging && this.draggable === 'columns' ? [
+                    Button.component({
+                        icon: 'fas fa-lock',
+                        className: 'Button',
+                        children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.fix-columns'),
+                        onclick: () => {
+                            this.draggable = 'cards';
+                            this.setDraggable();
+                        }
                     })
+                ] : []
             ])),
             m('div', {
                 className: 'Board--List'
             }, this.tags.map(tag => {
-                return this.column(tag);
+                return Column.component({
+                    board: this.tag,
+                    tag,
+                    discussions: this.discussions[tag.slug()],
+                    loading: this.loading
+                });
             }))
         ])
     }
@@ -84,39 +104,10 @@ export default class Board extends Page {
                         this.setDraggable();
                     }
                 }));
-            } else if (this.dragging && this.draggable === 'columns') {
-                items.add('drag-columns', Button.component({
-                    icon: 'fas fa-lock',
-                    children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.fix-columns'),
-                    onclick: () => {
-                        this.draggable = 'cards';
-                        this.setDraggable();
-                    }
-                }));
             }
         }
 
         return items;
-    }
-
-    column(tag) {
-        return m('div', {
-            className: 'Board--Column ' + tag.name(),
-            slug: tag.slug()
-        }, [
-            m('div', {className: 'Board--Inner'}, [
-                m('header', {
-                    className: 'Board--Header' + (tag.color() ? ' colored' : ''),
-                    style: tag.color() ? 'border-top-color: ' + tag.color() + ';' : ''
-                }, m('h4', [tag.name(), m('span', tag.description())])),
-                m('div', {
-                    className: 'Board--Item-List',
-                    slug: tag.slug()
-                }, this.loading || this.discussions[tag.slug()].length == 0 ? '' : this.discussions[tag.slug()].map(discussion => {
-                    return Card.component({discussion});
-                }))
-            ])
-        ]);
     }
 
     /**
@@ -232,6 +223,8 @@ export default class Board extends Page {
             }
         } else if (this.draggable === 'cards') {
             sortable('.Board--Item-List');
+        } else {
+            sortable('.Board--Item-List');
         }
 
         if (this.dragging === null && this.draggable === 'columns') {
@@ -253,9 +246,11 @@ export default class Board extends Page {
             }
         } else if (this.draggable === 'columns') {
             sortable('.Board--List');
+        } else {
+            sortable('.Board--List', 'destroy');
         }
 
-        this.dragging = (this.dragging === null && sorted.length > 0) || (this.dragging !== null && true);
+        this.dragging = (this.dragging === null && sorted.length > 0) || this.dragging !== null;
     }
 
     updateColumnSorting(sorting) {

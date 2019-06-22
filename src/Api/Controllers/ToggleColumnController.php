@@ -48,7 +48,7 @@ class ToggleColumnController extends AbstractShowController
 
         $this->assertCan($actor,'tag'.$board->id.'.discussion.flagrow.aqueduct.board-admin');
 
-        if ($request->getMethod() == 'DELETE') {
+        if (strtolower($request->getMethod()) === 'delete') {
             $this->tags->removeColumn($board, $column);
         } else {
             $this->tags->addColumn($board, $column);

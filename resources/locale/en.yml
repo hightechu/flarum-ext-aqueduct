@@ -6,6 +6,8 @@ flagrow-aqueduct:
                     title: Add a column to the board
             buttons:
                 add-column: Add column
+                remove-column: Remove column
+                remove-column-confirmation: "This removes column {tag} from your board, are you sure?"
                 drag-columns: Order columns
                 fix-columns: Finish column ordering
         discussion:
