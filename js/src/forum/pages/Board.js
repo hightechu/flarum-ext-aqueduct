@@ -68,11 +68,11 @@ export default class Board extends Page {
             ])),
             m('div', {
                 className: 'Board--List'
-            }, this.tags.map(tag => {
+            }, (this.loading ? [] : this.tags).map(tag => {
                 return Column.component({
                     board: this.tag,
                     tag,
-                    discussions: this.discussions[tag.slug()],
+                    discussions: this.discussions[tag.slug()] || [],
                     loading: this.loading
                 });
             }))

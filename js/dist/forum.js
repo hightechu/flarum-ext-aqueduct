@@ -1463,11 +1463,11 @@ function (_Page) {
       }
     })] : []])), m('div', {
       className: 'Board--List'
-    }, this.tags.map(function (tag) {
+    }, (this.loading ? [] : this.tags).map(function (tag) {
       return _components_Column__WEBPACK_IMPORTED_MODULE_8__["default"].component({
         board: _this.tag,
         tag: tag,
-        discussions: _this.discussions[tag.slug()],
+        discussions: _this.discussions[tag.slug()] || [],
         loading: _this.loading
       });
     }))]);
