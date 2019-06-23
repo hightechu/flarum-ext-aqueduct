@@ -58,7 +58,7 @@ export default class Column extends Component {
         const tag = this.tag;
         let items = new ItemList;
 
-        if (this.draggable === 'columns' && tag.canManageBoard()) {
+        if (this.props.draggable === 'columns' && this.board.canManageBoard()) {
             items.add('remove-column', Button.component({
                 icon: 'fas fa-cog',
                 children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.remove-column'),
