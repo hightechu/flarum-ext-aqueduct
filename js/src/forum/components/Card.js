@@ -42,7 +42,7 @@ export default class Card extends Component {
                   m.route.apply(this, arguments);
               }}>
             {avatar(user, {title: user.username()})}
-            <span className="Card--Author-Username">{user.username()}</span>
+            <span className="Username">{user.username()}</span>
         </a>);
 
         items.add('count', m('div', {className: 'Card--Replies-Count'}, [
