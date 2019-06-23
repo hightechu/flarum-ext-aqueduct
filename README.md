@@ -6,6 +6,8 @@ By relying heavily on the tags extension you can create a board with todo, doing
 
 > This is a [premium extension](https://flagrow.io/about/premium-extensions). Installation and updating requires an [active subscription](https://flagrow.io/extensions/hyn/aqueduct/subscription).
 
+![](https://drive.google.com/uc?id=1I0GsmroIxE21f_epULg-UV065xyQ_bLi)
+
 ## Installation
 
 Use flagrow/bazaar or check the FAQ on [flagrow.io](https://flagrow.io) on how to use a custom token, then run:
