@@ -20,7 +20,7 @@ return [
         ->delete('/board/{board}/columns/{column}', 'flagrow.kanban.api.board.columns.remove', Api\Controllers\ToggleColumnController::class),
     (new Extend\Compat(function (Dispatcher $events) {
         $events->subscribe(Listeners\AddTagRelationships::class);
-        $events->subscribe(Listeners\AddTagAttributes::class);
+        $events->subscribe(Listeners\AddApiAttributes::class);
         $events->subscribe(Listeners\AddDiscussionRelationships::class);
     }))
 ];

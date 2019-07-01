@@ -2,32 +2,35 @@
 
 namespace Flagrow\Aqueduct\Listeners;
 
+use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Event\Serializing;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Illuminate\Contracts\Events\Dispatcher;
 
-class AddTagAttributes
+class AddApiAttributes
 {
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(Serializing::class, [$this, 'canManageBoard']);
+        $events->listen(Serializing::class, [$this, 'permissions']);
     }
 
-    public function canManageBoard(Serializing $event)
+    public function permissions(Serializing $event)
     {
         if ($event->isSerializer(TagSerializer::class)) {
+            $discussion = $event->model->discussions()->first();
+
             $event->attributes['canAccessBoard'] = $event->actor->can(
-                'tag'.$event->model->id.'.discussion.flagrow.kanban.board-access',
-                $event->model
+                'aqueductBoardAccess',
+                $discussion
             );
             $event->attributes['canUseBoard'] = $event->actor->can(
-                'tag'.$event->model->id.'.discussion.flagrow.kanban.board-user',
-                $event->model
+                'aqueductBoardUser',
+                $discussion
             );
             $event->attributes['canManageBoard'] = $event->actor->can(
-                'tag'.$event->model->id.'.discussion.flagrow.kanban.board-admin',
-                $event->model
+                'aqueductBoardAdmin',
+                $discussion
             );
 
             // Inject the pivot information.
@@ -38,14 +41,14 @@ class AddTagAttributes
         }
 
         if ($event->isSerializer(ForumSerializer::class)) {
+            $event->attributes['canAccessBoard'] = $event->actor->can(
+                'discussion.aqueductBoardAccess'
+            );
             $event->attributes['canUseBoard'] = $event->actor->can(
-                'discussion.flagrow.kanban.board-user'
+                'discussion.aqueductBoardUser'
             );
             $event->attributes['canManageBoard'] = $event->actor->can(
-                'discussion.flagrow.kanban.board-admin'
-            );
-            $event->attributes['canAccessBoard'] = $event->actor->can(
-                'discussion.flagrow.kanban.board-access'
+                'discussion.aqueductBoardAdmin'
             );
         }
     }

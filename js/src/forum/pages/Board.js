@@ -43,7 +43,7 @@ export default class Board extends Page {
                 className: 'Board--Controls'
             }, m('div', {className: 'container'}, [
                 Button.component({
-                    icon: 'fas fa-tag',
+                    icon: this.tag.icon() || 'fas fa-tag',
                     className: 'Button',
                     children: this.tag.name(),
                     onclick: () => m.route('/t/' + this.tag.slug())
@@ -59,7 +59,7 @@ export default class Board extends Page {
                     Button.component({
                         icon: 'fas fa-lock',
                         className: 'Button Button--danger',
-                        children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.fix-columns'),
+                        children: app.translator.trans('aqueduct.forum.board.buttons.fix-columns'),
                         onclick: () => {
                             this.updateColumnSorting()
 
@@ -92,7 +92,7 @@ export default class Board extends Page {
         if (tag.canManageBoard()) {
             items.add('add-column', Button.component({
                 icon: 'fas fa-cog',
-                children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.add-column'),
+                children: app.translator.trans('aqueduct.forum.board.buttons.add-column'),
                 onclick: () => app.modal.show(new AddColumnModal({
                     tag: tag,
                     onsubmit: () => {
@@ -104,7 +104,7 @@ export default class Board extends Page {
             if (this.draggable === 'cards') {
                 items.add('drag-columns', Button.component({
                     icon: 'fas fa-lock-open',
-                    children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.drag-columns'),
+                    children: app.translator.trans('aqueduct.forum.board.buttons.drag-columns'),
                     onclick: () => {
                         this.draggable = 'columns';
                         this.setDraggable();

@@ -1,11 +1,12 @@
 import routes from './routes';
 import addsBoardToDiscussion from './addsBoardToDiscussion';
+import addsBoardToIndex from './addsBoardToIndex';
 
 import Model from 'flarum/Model';
 import Tag from 'flarum/tags/models/Tag';
 import Discussion from 'flarum/models/Discussion';
 
-app.initializers.add('flagrow-aqueduct', function(app) {
+app.initializers.add('hyn-aqueduct', function(app) {
     Tag.prototype.canAccessBoard = Model.attribute('canAccessBoard');
     Tag.prototype.canUseBoard = Model.attribute('canUseBoard');
     Tag.prototype.canManageBoard = Model.attribute('canManageBoard');
@@ -22,4 +23,5 @@ app.initializers.add('flagrow-aqueduct', function(app) {
     routes(app);
 
     addsBoardToDiscussion();
+    addsBoardToIndex();
 });

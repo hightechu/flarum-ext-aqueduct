@@ -8,7 +8,7 @@ import Button from "flarum/components/Button";
 export default class AddColumnModal extends Modal {
 
     title() {
-        return app.translator.trans('flagrow-aqueduct.forum.board.modals.add-column.title');
+        return app.translator.trans('aqueduct.forum.board.modals.add-column.title');
     }
     init() {
         super.init();

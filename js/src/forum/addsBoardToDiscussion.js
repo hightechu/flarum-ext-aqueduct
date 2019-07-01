@@ -17,9 +17,9 @@ export default function () {
 
         tags.forEach(tag => {
             controls.add('board-' + tag.slug(), Button.component({
-                children: app.translator.trans('flagrow-aqueduct.forum.discussion.buttons.show-board', {tag: tag.name()}),
+                children: app.translator.trans('aqueduct.forum.discussion.buttons.show-board', {tag: tag.name()}),
                 icon: 'fab fa-trello',
-                onclick: () => m.route(app.route('flagrow.kanban.board', {tag: tag.slug()}))
+                onclick: () => m.route(app.route('aqueduct.board', {tag: tag.slug()}))
             }));
         })
 

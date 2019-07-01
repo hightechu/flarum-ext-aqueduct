@@ -61,9 +61,9 @@ export default class Column extends Component {
         if (this.props.draggable === 'columns' && this.board.canManageBoard()) {
             items.add('remove-column', Button.component({
                 icon: 'fas fa-cog',
-                children: app.translator.trans('flagrow-aqueduct.forum.board.buttons.remove-column'),
+                children: app.translator.trans('aqueduct.forum.board.buttons.remove-column'),
                 onclick: () => {
-                    if (confirm(app.translator.trans('flagrow-aqueduct.forum.board.buttons.remove-column-confirmation', {tag: tag.name()}))) {
+                    if (confirm(app.translator.trans('aqueduct.forum.board.buttons.remove-column-confirmation', {tag: tag.name()}))) {
                         this.delete();
                     }
                 }
