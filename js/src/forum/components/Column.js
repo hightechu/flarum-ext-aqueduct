@@ -12,9 +12,13 @@ export default class Column extends Component {
         this.slug = this.props.slug;
         this.description = this.props.description || "";
         this.discussions = this.props.discussions || [];
-        this.loading = this.props.loading;
+
         this.dragging = this.props.dragging;
         this.draggingEnabled = this.props.draggable === 'cards';
+
+        this.update = this.props.update || (() => {});
+        this.delete = this.props.delete || (() => {});
+
         this.sorted = [];
 
         this.$().ready(() => {
@@ -90,64 +94,16 @@ export default class Column extends Component {
             });
 
             this.sorted[0].addEventListener('sortupdate', (e) => {
-                const tag = $(e.target).attr('slug');
-                // prevents updating multiple times
-                if (tag === $(e.detail.endparent).attr('slug')) {
-                    const sorting = $(e.target).find('.Card').map(function () {
-                        return $(this).attr('discussion');
-                    }).get();
-
-                    this.updateDiscussionSorting(sorting, tag);
-                }
+                this.update($(e.target).find('.Card').map(function () {
+                    return {
+                        id: $(this).attr('discussion')
+                    };
+                }).get());
             });
         } else if (this.draggingEnabled) {
             sortable(selector);
         }
 
         this.dragging = (this.dragging === null && this.sorted.length > 0) || this.dragging !== null;
-    }
-
-    delete() {
-        return;
-        const board = this.board;
-        const column = this.tag;
-
-        app.request({
-            method: 'DELETE',
-            url: app.forum.attribute('apiUrl') + '/board/' + board.slug() + '/columns/' + column.slug(),
-        }).then(results => {
-            this.tag = app.store.pushPayload(results);
-
-            m.redraw();
-        });
-    }
-
-    updateDiscussionSorting(sorting, slug) {
-        const tag = app.store.getBy('tags', 'slug', slug);
-
-        if (sorting.length > 0) {
-            sorting.forEach(id => {
-                const discussion = app.store.getById('discussions', id);
-                const tags = discussion.tags();
-
-                const data = {
-                    relationships: {
-                        tags: []
-                    }
-                }
-
-                // drop all tags from discussion that are part of this board as column
-                tags.forEach(t => {
-                    //if (this.tags.indexOf(t) < 0 && t.id() !== tag.id()) {
-                        data.relationships.tags.push(t);
-                    //}
-                })
-
-                // then re-add that tag so it can be saved
-                data.relationships.tags.push(tag);
-
-                discussion.save(data);
-            })
-        }
     }
 }

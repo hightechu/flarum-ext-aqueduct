@@ -10,7 +10,7 @@ export default class Card extends Component {
     }
 
     view() {
-        if(!this.discussion) {
+        if (!this.discussion) {
             return;
         }
 
@@ -38,7 +38,7 @@ export default class Card extends Component {
 
         const user = this.discussion.user();
 
-        if(user) {
+        if (user) {
             items.add('user',
                 <a href={user ? app.route.user(user) : '#'}
                   className="Card--Author"

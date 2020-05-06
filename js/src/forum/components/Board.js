@@ -1,4 +1,5 @@
 import sortable from 'html5sortable';
+import YAML from 'yaml'
 
 import Component from "flarum/Component";
 import SplitDropdown from 'flarum/components/SplitDropdown';
@@ -10,28 +11,49 @@ import Column from './Column';
 
 export default class Board extends Component {
     init() {
-        this.name = this.props.name || "Board";
-        this.columns = this.props.columns || [];
+        this.post = this.props.discussion.posts()[0];
+
+        this.boardConfig = {};
+        this.loadConfig();
+
+        this.name = this.boardConfig.name || "Board";
+        this.columns = this.boardConfig.columns || [];
 
         this.draggable = 'cards';
         this.dragging = null;
 
-        this.refresh(true);
+        this.setDraggable();
     }
 
 
-    config(isInitialized, context) {
-        super.config(...arguments);
+    loadConfig() {
+        let yaml = this.post.content();
+        let data = {};
+        try {
+            data = YAML.parse(yaml);
+            // TODO check version
+        } catch(e) {
+            data.description = YAML.stringify(yaml);
+        }
 
-        if (isInitialized) return;
+        this.boardConfig = {
+            name: data.name || "",
+            description: data.description || "",
+            columns: data.columns || []
+        };
+    }
 
-        app.setTitle('');
-        app.setTitleCount(0);
-
-        this.$().ready(() => {
-            this.setDraggable();
+    saveConfig() {
+        let header = "# Aqueduct Kamban Board\n"
+        let yaml = YAML.stringify({
+            version: "1.0", // TODO find a way to retrieve version
+            name: this.boardConfig.name,
+            description: this.boardConfig.description,
+            columns: this.boardConfig.columns
         });
-
+        this.post.save({
+            content: header + yaml
+        }).catch(console.error);
     }
 
     view() {
@@ -64,7 +86,7 @@ export default class Board extends Component {
             ])),
             m('div', {
                 className: 'Board--List'
-            }, this.columns.map(col => {
+            }, this.columns.map((col, id) => {
                 return Column.component({
                     name: col.name,
                     slug: col.slug,
@@ -72,23 +94,39 @@ export default class Board extends Component {
                     discussions: col.discussions,
                     dragging: this.dragging,
                     draggable: this.draggable,
+
+                    update: discussions => {
+                        this.boardConfig.columns[id].discussions = discussions;
+                        this.saveConfig();
+                        m.redraw();
+                    },
+
+                    delete: () => {
+                        this.boardConfig.columns.splice(id, 1);
+                        this.saveConfig();
+                        m.redraw();
+                    }
                 });
             }))
         ])
     }
 
     controls() {
-        let items = new ItemList;
-        let tag = this.tag;
+        let items = new ItemList();
 
-        if (true || tag.canManageBoard()) {
+        if (this.post.canEdit()) {
             items.add('add-column', Button.component({
                 icon: 'fas fa-cog',
                 children: app.translator.trans('aqueduct.forum.board.buttons.add-column'),
                 onclick: () => app.modal.show(new AddColumnModal({
-                    tag: tag,
-                    onsubmit: () => {
-                        this.refresh(true)
+                    existingColumns: this.boardConfig.columns,
+                    onsubmit: (name, slug, description) => {
+                        this.boardConfig.columns.push({
+                            name: name,
+                            slug: slug,
+                            description: description
+                        });
+                        this.saveConfig();
                     }
                 }))
             }));
@@ -108,93 +146,12 @@ export default class Board extends Component {
         return items;
     }
 
-    /**
-     * Clear and reload the discussion list.
-     *
-     * @public
-     */
-    refresh(clear = true) {
-        if (clear) {
-            this.loading = true;
-
-            // The primary tag for which we will show the board.
-            this.tag = app.store.getBy('tags', 'slug', m.route.param('tag'));
-
-            /**
-             * The discussions in the discussion list.
-             *
-             * @type {Discussion[]}
-             */
-            this.discussions = {};
-
-            this.tags = [];//this.tag.columns() || [];
-        }
-
-        this.tags.sort((a, b) => {
-            return a.boardSort() - b.boardSort();
-        });
-
-        this.load().then(
-            results => {
-                app.store.pushPayload(results);
-
-                this.discussions = {};
-                this.parseResults(results.data);
-
-                this.setDraggable()
-            },
-            () => {
-                this.loading = false;
-                m.redraw();
-
-                this.setDraggable()
-            }
-        );
-    }
-
-    /**
-     * Parse results and append them to the discussion list.
-     *
-     * @param {Discussion[]} results
-     * @return {Discussion[]}
-     */
-    parseResults(results) {
-        this.tags.forEach(tag => {
-
-            this.discussions[tag.slug()] = [];
-
-            results.forEach(discussion => {
-                discussion = app.store.getById(discussion.type, discussion.id);
-
-                if (discussion.tags().map(tag => tag.id()).indexOf(tag.id()) != -1) {
-                    this.discussions[tag.slug()].push(discussion);
-                }
-            });
-        })
-
-        this.loading = false;
-
-        m.lazyRedraw();
-
-        return results;
-    }
-
-    /**
-     * Load discussions based on the tags.
-     */
-    load() {
-        return new Promise(()=>{});
-        return app.request({
-            method: 'get',
-            url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug(),
-        });
-    }
 
     /**
      * Listens to dragging event and updates the sorting of the columns.
      */
     setDraggable() {
-        if (false && !this.tag.canManageBoard()) {
+        if (!this.post.canEdit()) {
             return;
         }
 
@@ -220,18 +177,7 @@ export default class Board extends Component {
         const sorting = this.$().find('.Board--Column').map(function () {
             return $(this).attr('slug');
         }).get();
-
-        return app.request({
-            method: 'post',
-            url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug() + '/sorting',
-            data: sorting
-        }).then(results => {
-            app.store.pushPayload(results);
-            m.redraw()
-
-            this.setDraggable()
-        })
+        // TODO
     }
-
 
 }

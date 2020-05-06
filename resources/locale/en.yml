@@ -4,6 +4,11 @@ aqueduct:
             modals:
                 add-column:
                     title: Add a column to the board
+                    name: Name
+                    slug: Slug
+                    description: Description
+                    error-empty: Slug is empty
+                    error-exists: Column with that slug already exists
             buttons:
                 add-column: Add column
                 remove-column: Remove column
