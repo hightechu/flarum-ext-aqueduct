@@ -196,7 +196,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 flarum_app__WEBPACK_IMPORTED_MODULE_0___default.a.initializers.add('hyn-aqueduct', function (app) {
-  Object(_addPermissions__WEBPACK_IMPORTED_MODULE_1__["default"])(); // allowConfigurationPerTag();
+  Object(_addPermissions__WEBPACK_IMPORTED_MODULE_1__["default"])(); //allowConfigurationPerTag();
 });
 
 /***/ }),

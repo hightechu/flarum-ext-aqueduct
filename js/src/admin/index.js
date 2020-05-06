@@ -5,5 +5,5 @@ import allowConfigurationPerTag from './allowConfigurationPerTag';
 
 app.initializers.add('hyn-aqueduct', app => {
     addPermissions();
-    // allowConfigurationPerTag();
+    //allowConfigurationPerTag();
 });

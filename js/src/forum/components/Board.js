@@ -1,18 +1,17 @@
 import sortable from 'html5sortable';
 
-import Page from "flarum/components/Page";
+import Component from "flarum/Component";
 import SplitDropdown from 'flarum/components/SplitDropdown';
 import Button from 'flarum/components/Button';
 import ItemList from 'flarum/utils/ItemList';
 import AddColumnModal from '../modals/AddColumnModal';
-import Card from '../components/Card';
-import Column from '../components/Column';
+import Card from './Card';
+import Column from './Column';
 
-export default class Board extends Page {
+export default class Board extends Component {
     init() {
-        super.init();
-
-        this.bodyClass = 'Kanban--Board';
+        this.name = this.props.name || "Board";
+        this.columns = this.props.columns || [];
 
         this.draggable = 'cards';
         this.dragging = null;
@@ -37,17 +36,11 @@ export default class Board extends Page {
 
     view() {
         return m('div', {
-            className: 'Board'
+            className: 'Kanban--Board'
         }, [
             m('div', {
                 className: 'Board--Controls'
             }, m('div', {className: 'container'}, [
-                Button.component({
-                    icon: this.tag.icon() || 'fas fa-tag',
-                    className: 'Button',
-                    children: this.tag.name(),
-                    onclick: () => m.route('/t/' + this.tag.slug())
-                }),
                 this.controls().isEmpty() ? [] :
                     SplitDropdown.component({
                         children: this.controls().toArray(),
@@ -71,15 +64,14 @@ export default class Board extends Page {
             ])),
             m('div', {
                 className: 'Board--List'
-            }, (this.loading ? [] : this.tags).map(tag => {
+            }, this.columns.map(col => {
                 return Column.component({
-                    board: this.tag,
-                    tag,
-                    discussions: this.discussions[tag.slug()] || [],
-                    loading: this.loading,
+                    name: col.name,
+                    slug: col.slug,
+                    description: col.description,
+                    discussions: col.discussions,
                     dragging: this.dragging,
                     draggable: this.draggable,
-                    tags: this.tags
                 });
             }))
         ])
@@ -89,7 +81,7 @@ export default class Board extends Page {
         let items = new ItemList;
         let tag = this.tag;
 
-        if (tag.canManageBoard()) {
+        if (true || tag.canManageBoard()) {
             items.add('add-column', Button.component({
                 icon: 'fas fa-cog',
                 children: app.translator.trans('aqueduct.forum.board.buttons.add-column'),
@@ -135,7 +127,7 @@ export default class Board extends Page {
              */
             this.discussions = {};
 
-            this.tags = this.tag.columns() || [];
+            this.tags = [];//this.tag.columns() || [];
         }
 
         this.tags.sort((a, b) => {
@@ -191,6 +183,7 @@ export default class Board extends Page {
      * Load discussions based on the tags.
      */
     load() {
+        return new Promise(()=>{});
         return app.request({
             method: 'get',
             url: app.forum.attribute('apiUrl') + '/board/' + this.tag.slug(),
@@ -201,7 +194,7 @@ export default class Board extends Page {
      * Listens to dragging event and updates the sorting of the columns.
      */
     setDraggable() {
-        if (!this.tag.canManageBoard()) {
+        if (false && !this.tag.canManageBoard()) {
             return;
         }
 

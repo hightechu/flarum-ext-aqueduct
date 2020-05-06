@@ -2,137 +2,135 @@
 
     padding-bottom: 0;
 
-    .Board {
-        position: relative;
+    position: relative;
 
-        .Board--Controls {
-            padding: 10px 0;
-            background: @control-bg;
-            border-bottom: 1px solid darken(@control-bg,10%);
-            height: @header-height;
-        }
+    .Board--Controls {
+        padding: 10px 0;
+        background: @control-bg;
+        border-bottom: 1px solid darken(@control-bg,10%);
+        height: @header-height;
+    }
 
-        .Board--List {
-            display: flex;
-            flex-direction: row;
-            width: 100%;
-            padding: 8px;
-            overflow-x: scroll;
-            white-space: nowrap;
-            height: calc(99vh ~"-" @header-height ~"-" @header-height);
+    .Board--List {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        padding: 8px;
+        overflow-x: scroll;
+        white-space: nowrap;
+        height: calc(99vh ~"-" @header-height ~"-" @header-height);
 
 
-            .Board--Column {
+        .Board--Column {
+            height: 100%;
+            padding: 0 8px;
+            width: 400px;
+            vertical-align: top;
+            display: inline-block;
+
+            &.Placeholder {
+                background: lighten(@control-bg, 10%);
+                border: 1px dashed @control-bg;
+                border-radius: @border-radius;
+            }
+
+            .Board--Inner {
                 height: 100%;
-                padding: 0 8px;
-                width: 400px;
-                vertical-align: top;
-                display: inline-block;
+                background: lighten(@control-bg, 5%);
+                border: 1px solid @control-bg;
+                border-radius: @border-radius;
 
-                &.Placeholder {
-                    background: lighten(@control-bg, 10%);
-                    border: 1px dashed @control-bg;
-                    border-radius: @border-radius;
-                }
+                .Board--Header {
+                    border-top-left-radius: @border-radius;
+                    border-top-right-radius: @border-radius;
 
-                .Board--Inner {
-                    height: 100%;
-                    background: lighten(@control-bg, 5%);
-                    border: 1px solid @control-bg;
-                    border-radius: @border-radius;
+                    &.colored {
+                        border-top: 3px solid;
+                        margin: -1px -1px 0;
+                        padding: 1px 1px 0;
+                    }
 
-                    .Board--Header {
-                        border-top-left-radius: @border-radius;
-                        border-top-right-radius: @border-radius;
+                    h4 {
+                        position: relative;
+                        margin: 0;
+                        padding: 16px;
+                        font-size: 1em;
+                        border-bottom: 1px solid @control-bg;
 
-                        &.colored {
-                            border-top: 3px solid;
-                            margin: -1px -1px 0;
-                            padding: 1px 1px 0;
+                        span {
+                            float: right;
+                            clear: both;
+                            font-size: .9em;
+                            font-weight: normal;
                         }
 
-                        h4 {
-                            position: relative;
-                            margin: 0;
-                            padding: 16px;
-                            font-size: 1em;
-                            border-bottom: 1px solid @control-bg;
+                        .ButtonGroup.Dropdown {
+                            float: right;
+                        }
+                    }
+                }
 
-                            span {
-                                float: right;
-                                clear: both;
-                                font-size: .9em;
-                                font-weight: normal;
+                .Board--Item-List {
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+                    margin: 0;
+                    padding: 5px;
+                    list-style: none;
+                    overflow-y: auto;
+                    overflow-x: hidden;
+
+                    div.Card {
+                        position: relative;
+                        border-radius: @border-radius;
+                        list-style: none;
+                        background: @body-bg;
+                        .box-shadow(0 1px 5px @shadow-color);
+                        margin: 0 0 5px 0;
+
+                        &.Placeholder {
+                            background: lighten(@control-bg, 10%);
+                            border: 1px dashed @control-bg;
+                            border-radius: @border-radius;
+                            min-height: 40px;
+                        }
+
+                        .Card--Header {
+                            padding: 4px;
+                            border-bottom: 1px solid @control-bg;
+                        }
+                        .Card--Footer {
+                            padding: 4px;
+                            background: darken(@body-bg, 1%);
+                            font-size: .9em;
+                            text-align: right;
+
+                            border-bottom-left-radius: @border-radius;
+                            border-bottom-right-radius: @border-radius;
+
+                            > a, > div {
+                                display: inline-block;
+                                margin: 2px;
                             }
 
-                            .ButtonGroup.Dropdown {
-                                float: right;
+                            .Card--Author {
+                                .Avatar {
+                                    height: 20px;
+                                    width: 20px;
+                                    font-size: 16px;
+                                    line-height: 20px;
+                                }
+                                .Username {
+                                    line-height: 20px;
+                                    padding: 0 3px;
+                                }
                             }
                         }
                     }
 
-                    .Board--Item-List {
-                        display: flex;
-                        flex-direction: column;
-                        height: 100%;
-                        margin: 0;
-                        padding: 5px;
-                        list-style: none;
-                        overflow-y: auto;
-                        overflow-x: hidden;
-
-                        div.Card {
-                            position: relative;
-                            border-radius: @border-radius;
-                            list-style: none;
-                            background: @body-bg;
-                            .box-shadow(0 1px 5px @shadow-color);
-                            margin: 0 0 5px 0;
-
-                            &.Placeholder {
-                                background: lighten(@control-bg, 10%);
-                                border: 1px dashed @control-bg;
-                                border-radius: @border-radius;
-                                min-height: 40px;
-                            }
-
-                            .Card--Header {
-                                padding: 4px;
-                                border-bottom: 1px solid @control-bg;
-                            }
-                            .Card--Footer {
-                                padding: 4px;
-                                background: darken(@body-bg, 1%);
-                                font-size: .9em;
-                                text-align: right;
-
-                                border-bottom-left-radius: @border-radius;
-                                border-bottom-right-radius: @border-radius;
-
-                                > a, > div {
-                                    display: inline-block;
-                                    margin: 2px;
-                                }
-
-                                .Card--Author {
-                                    .Avatar {
-                                        height: 20px;
-                                        width: 20px;
-                                        font-size: 16px;
-                                        line-height: 20px;
-                                    }
-                                    .Username {
-                                        line-height: 20px;
-                                        padding: 0 3px;
-                                    }
-                                }
-                            }
-                        }
-
-                        li.Card.Unread {
-                            .Card--Header {
-                                font-weight: bold;
-                            }
+                    li.Card.Unread {
+                        .Card--Header {
+                            font-weight: bold;
                         }
                     }
                 }

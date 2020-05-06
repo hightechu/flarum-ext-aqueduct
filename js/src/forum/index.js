@@ -1,6 +1,4 @@
-import routes from './routes';
-import addsBoardToDiscussion from './addsBoardToDiscussion';
-import addsBoardToIndex from './addsBoardToIndex';
+import createDiscussionBoard from './createDiscussionBoard';
 
 import Model from 'flarum/Model';
 import Tag from 'flarum/tags/models/Tag';
@@ -20,8 +18,5 @@ app.initializers.add('hyn-aqueduct', function(app) {
     Discussion.prototype.assignedUsers = Model.hasMany('assignedUsers');
     Discussion.prototype.assignedGroups = Model.hasMany('assignedGroups');
 
-    routes(app);
-
-    addsBoardToDiscussion();
-    addsBoardToIndex();
+    createDiscussionBoard();
 });

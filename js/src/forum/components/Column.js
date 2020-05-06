@@ -8,13 +8,13 @@ import sortable from "html5sortable";
 
 export default class Column extends Component {
     init() {
-        this.board = this.props.board;
-        this.tag = this.props.tag;
-        this.discussions = this.props.discussions;
+        this.name = this.props.name;
+        this.slug = this.props.slug;
+        this.description = this.props.description || "";
+        this.discussions = this.props.discussions || [];
         this.loading = this.props.loading;
         this.dragging = this.props.dragging;
         this.draggingEnabled = this.props.draggable === 'cards';
-        this.tags = this.props.tags;
         this.sorted = [];
 
         this.$().ready(() => {
@@ -23,19 +23,18 @@ export default class Column extends Component {
     }
 
     view() {
-        const tag = this.tag;
 
         return m('div', {
-            className: 'Board--Column ' + tag.name(),
-            slug: tag.slug()
+            className: 'Board--Column ' + this.name,
+            slug: this.slug
         }, [
             m('div', {className: 'Board--Inner'}, [
                 m('header', {
-                    className: 'Board--Header' + (tag.color() ? ' colored' : ''),
-                    style: tag.color() ? 'border-top-color: ' + tag.color() + ';' : ''
+                    className: 'Board--Header',
+                    slug: this.slug
                 }, m('h4', [
-                    tag.name(),
-                    m('span', tag.description()),
+                    this.name,
+                    m('span', this.description),
 
                     this.controls().isEmpty() ? [] :
                         SplitDropdown.component({
@@ -46,24 +45,25 @@ export default class Column extends Component {
                 ])),
                 m('div', {
                     className: 'Board--Item-List',
-                    slug: tag.slug()
-                }, this.loading || this.discussions.length == 0 ? '' : this.discussions.map(discussion => {
-                    return Card.component({discussion});
+                    slug: this.slug
+                }, this.discussions.map(dis => {
+                    return Card.component({
+                        discussionId: dis.id
+                    });
                 }))
             ])
         ]);
     }
 
     controls() {
-        const tag = this.tag;
         let items = new ItemList;
 
-        if (this.props.draggable === 'columns' && this.board.canManageBoard()) {
+        if (this.props.draggable === 'columns' && true) { // this.board.canManageBoard()) {
             items.add('remove-column', Button.component({
                 icon: 'fas fa-cog',
                 children: app.translator.trans('aqueduct.forum.board.buttons.remove-column'),
                 onclick: () => {
-                    if (confirm(app.translator.trans('aqueduct.forum.board.buttons.remove-column-confirmation', {tag: tag.name()}))) {
+                    if (confirm(app.translator.trans('aqueduct.forum.board.buttons.remove-column-confirmation', {name: this.name}))) {
                         this.delete();
                     }
                 }
@@ -74,11 +74,11 @@ export default class Column extends Component {
     }
 
     sortable() {
-        if (! this.board.canUseBoard()) {
+        if (false) { //! this.board.canUseBoard()) {
             return;
         }
 
-        const selector = '.Board--Item-List[slug=' + this.tag.slug() + ']';
+        const selector = '.Board--Item-List[slug=' + this.slug + ']';
 
         if (!this.dragging && this.draggingEnabled && this.sorted.length === 0) {
             this.sorted = sortable(selector, {
@@ -108,6 +108,7 @@ export default class Column extends Component {
     }
 
     delete() {
+        return;
         const board = this.board;
         const column = this.tag;
 
@@ -137,9 +138,9 @@ export default class Column extends Component {
 
                 // drop all tags from discussion that are part of this board as column
                 tags.forEach(t => {
-                    if (this.tags.indexOf(t) < 0 && t.id() !== tag.id()) {
+                    //if (this.tags.indexOf(t) < 0 && t.id() !== tag.id()) {
                         data.relationships.tags.push(t);
-                    }
+                    //}
                 })
 
                 // then re-add that tag so it can be saved
