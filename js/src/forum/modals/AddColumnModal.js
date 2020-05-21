@@ -1,7 +1,5 @@
 import { slug } from 'flarum/utils/string';
 import Modal from 'flarum/components/Modal';
-import highlight from 'flarum/helpers/highlight';
-import classList from 'flarum/utils/classList';
 import Button from "flarum/components/Button";
 
 export default class AddColumnModal extends Modal {
@@ -23,8 +21,6 @@ export default class AddColumnModal extends Modal {
     }
 
     content() {
-        const name = this.name();
-
         return [
           <div className="Modal-body">
             {this.error ?

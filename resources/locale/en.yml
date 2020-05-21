@@ -9,10 +9,16 @@ aqueduct:
                     description: Description
                     error-empty: Slug is empty
                     error-exists: Column with that slug already exists
+                add-card:
+                    title: Add a card
+                    error-empty: Input is empty
+                    error-notfound: Post not found
             buttons:
                 add-column: Add column
+                add-card: Add card
                 remove-column: Remove column
                 remove-column-confirmation: "This removes column {name} from your board, are you sure?"
+                remove-card: Remove card
                 drag-columns: Order columns
                 fix-columns: Finish column ordering
         discussion:

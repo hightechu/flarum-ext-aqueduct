@@ -3,6 +3,7 @@ import SplitDropdown from 'flarum/components/SplitDropdown';
 import Button from 'flarum/components/Button';
 import ItemList from 'flarum/utils/ItemList';
 import Card from '../components/Card';
+import AddCardModal from '../modals/AddCardModal';
 import sortable from "html5sortable";
 
 
@@ -50,9 +51,14 @@ export default class Column extends Component {
                 m('div', {
                     className: 'Board--Item-List',
                     slug: this.slug
-                }, this.discussions.map(dis => {
+                }, this.discussions.map((dis, i) => {
+                    if(!dis) return;
                     return Card.component({
-                        discussionId: dis.id
+                        discussionId: dis.id,
+                        delete: () => {
+                            delete this.discussions[i];
+                            this.update(this.discussions);
+                        }
                     });
                 }))
             ])
@@ -73,6 +79,19 @@ export default class Column extends Component {
                 }
             }));
         }
+
+        items.add('add-card', Button.component({
+            icon: 'fas fa-cog',
+            children: app.translator.trans('aqueduct.forum.board.buttons.add-card'),
+            onclick: () => app.modal.show(new AddCardModal({
+                onsubmit: (postId) => {
+                    this.discussions.push({
+                        id: postId
+                    });
+                    this.update(this.discussions);
+                }
+            }))
+        }));
 
         return items;
     }

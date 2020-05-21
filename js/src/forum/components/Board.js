@@ -96,6 +96,7 @@ export default class Board extends Component {
                     draggable: this.draggable,
 
                     update: discussions => {
+                        console.log(discussions);
                         this.boardConfig.columns[id].discussions = discussions;
                         this.saveConfig();
                         m.redraw();
