@@ -1,5 +1,6 @@
 import Modal from 'flarum/components/Modal';
 import Button from "flarum/components/Button";
+import DiscussionsSearchSource from "flarum/components/DiscussionsSearchSource";
 
 export default class AddColumnModal extends Modal {
 
@@ -10,10 +11,25 @@ export default class AddColumnModal extends Modal {
     init() {
         super.init();
 
-        this.postId = m.prop('');
+        this.query = m.prop('');
 
         this.error = null;
         this.focused = null;
+
+        this.search = new DiscussionsSearchSource();
+        this.searchResult = [];
+
+        this.updateSearch = this.updateSearch.bind(this);
+        this.updateSearch('');
+    }
+
+    updateSearch(query) {
+        console.log(query);
+        this.query(query);
+        this.search.search(query).then(rst => {
+            this.searchResult = rst;
+            m.redraw();
+        });
     }
 
     content() {
@@ -25,22 +41,22 @@ export default class AddColumnModal extends Modal {
               </div>
             : ''}
             <div className="Form">
-              <input className={'FormControl ' + (this.focused === 'postId' ? 'focus' : '')}
+              <input className={'FormControl ' + (this.focused === 'query' ? 'focus' : '')}
                 placeholder={app.translator.trans('aqueduct.forum.board.modals.add-column.description')}
-                value={this.postId()}
-                oninput={m.withAttr('value', this.postId)}
-                onfocus={() => this.focused = 'postId'}
+                value={this.query()}
+                oninput={m.withAttr('value', this.updateSearch)}
+                onfocus={() => this.focused = 'query'}
                 onblur={() => this.focused = null}/>
             </div>
-            <div className="App-primaryControl">
-              {Button.component({
-                type: 'submit',
-                className: 'Button Button--primary',
-                icon: 'check',
-                children: app.translator.trans('flarum-tags.forum.choose_tags.submit_button')
-              })}
-            </div>
-          </div>,
+            <ul className='SearchResults'>
+                {this.searchResult.map(r =>
+                    <li className='DiscussionSearchResult'
+                      onclick={() => this.onsubmit(r)}>
+                        {r.title()}
+                    </li>
+                )}
+            </ul>
+          </div>
         ];
     }
 
@@ -48,21 +64,10 @@ export default class AddColumnModal extends Modal {
         return 'AddCardModal';
     }
 
-    onsubmit(e) {
-        e.preventDefault();
-
-        if(!this.postId()) {
-            this.error = app.translator.trans('aqueduct.forum.board.modals.add-card.error-empty');
-            return;
-        }
-
-        if(!app.store.getById('discussions', this.postId())) {
-            this.error = app.translator.trans('aqueduct.forum.board.modals.add-card.error-notfound');
-            return;
-        }
+    onsubmit(post) {
 
         if (this.props.onsubmit) {
-            this.props.onsubmit(this.postId());
+            this.props.onsubmit(post.id());
         }
 
         app.modal.close();
