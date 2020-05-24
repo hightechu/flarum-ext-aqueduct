@@ -11,6 +11,7 @@ aqueduct:
                     error-exists: Column with that slug already exists
                 add-card:
                     title: Add a card
+                    query: Search for discussions
                     error-empty: Input is empty
                     error-notfound: Post not found
             buttons:

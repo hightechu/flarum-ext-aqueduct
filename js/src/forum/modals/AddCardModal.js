@@ -14,7 +14,7 @@ export default class AddColumnModal extends Modal {
         this.query = m.prop('');
 
         this.error = null;
-        this.focused = null;
+        this.focused = true;
 
         this.search = new DiscussionsSearchSource();
         this.searchResult = [];
@@ -24,7 +24,6 @@ export default class AddColumnModal extends Modal {
     }
 
     updateSearch(query) {
-        console.log(query);
         this.query(query);
         this.search.search(query).then(rst => {
             this.searchResult = rst;
@@ -41,16 +40,16 @@ export default class AddColumnModal extends Modal {
               </div>
             : ''}
             <div className="Form">
-              <input className={'FormControl ' + (this.focused === 'query' ? 'focus' : '')}
-                placeholder={app.translator.trans('aqueduct.forum.board.modals.add-column.description')}
+              <input className={'FormControl ' + (this.focused ? 'focus' : '')}
+                placeholder={app.translator.trans('aqueduct.forum.board.modals.add-card.query')}
                 value={this.query()}
                 oninput={m.withAttr('value', this.updateSearch)}
-                onfocus={() => this.focused = 'query'}
-                onblur={() => this.focused = null}/>
+                onfocus={() => this.focused = true}
+                onblur={() => this.focused = false}/>
             </div>
             <ul className='SearchResults'>
                 {this.searchResult.map(r =>
-                    <li className='DiscussionSearchResult'
+                    <li className='SearchResult'
                       onclick={() => this.onsubmit(r)}>
                         {r.title()}
                     </li>
