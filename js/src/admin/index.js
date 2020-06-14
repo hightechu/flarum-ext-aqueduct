@@ -1,9 +1,6 @@
 import app from "flarum/app";
-import addPermissions from './addPermissions';
-import allowConfigurationPerTag from './allowConfigurationPerTag';
-
+import BoardTagModal from './BoardTagModal';
 
 app.initializers.add('hyn-aqueduct', app => {
-    addPermissions();
-    //allowConfigurationPerTag();
+    app.extensionSettings['hyn-aqueduct'] = () => app.modal.show(new BoardTagModal());
 });

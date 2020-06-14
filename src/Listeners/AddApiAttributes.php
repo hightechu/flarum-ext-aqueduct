@@ -2,54 +2,23 @@
 
 namespace Flagrow\Aqueduct\Listeners;
 
-use Flarum\Api\Serializer\DiscussionSerializer;
-use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Event\Serializing;
-use Flarum\Tags\Api\Serializer\TagSerializer;
-use Illuminate\Contracts\Events\Dispatcher;
+use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Settings\SettingsRepositoryInterface;
 
 class AddApiAttributes
 {
-    public function subscribe(Dispatcher $events)
+    protected $settings;
+
+    public function __construct(SettingsRepositoryInterface $settings)
     {
-        $events->listen(Serializing::class, [$this, 'permissions']);
+        $this->settings = $settings;
     }
 
-    public function permissions(Serializing $event)
+    public function handle(Serializing $event)
     {
-        if ($event->isSerializer(TagSerializer::class)) {
-            $discussion = $event->model->discussions()->first();
-
-            $event->attributes['canAccessBoard'] = $event->actor->can(
-                'aqueductBoardAccess',
-                $discussion
-            );
-            $event->attributes['canUseBoard'] = $event->actor->can(
-                'aqueductBoardUser',
-                $discussion
-            );
-            $event->attributes['canManageBoard'] = $event->actor->can(
-                'aqueductBoardAdmin',
-                $discussion
-            );
-
-            // Inject the pivot information.
-            if (isset($event->model->pivot)) {
-                $event->attributes['boardSort'] = $event->model->pivot->sort;
-                $event->attributes['boardMaxItems'] = $event->model->pivot->max_items;
-            }
-        }
-
         if ($event->isSerializer(ForumSerializer::class)) {
-            $event->attributes['canAccessBoard'] = $event->actor->can(
-                'discussion.aqueductBoardAccess'
-            );
-            $event->attributes['canUseBoard'] = $event->actor->can(
-                'discussion.aqueductBoardUser'
-            );
-            $event->attributes['canManageBoard'] = $event->actor->can(
-                'discussion.aqueductBoardAdmin'
-            );
+            $event->attributes['boardTag'] = $this->settings->get('aqueduct.boardTag', 'board');
         }
     }
 }

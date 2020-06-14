@@ -33,7 +33,6 @@ aqueduct:
                 input: Search for users and groups
 
     admin:
-        permissions:
-            board-access: Access to boards
-            board-admin: Board admin
-            board-user: Participation on boards
+        settings:
+            title: Board Tag
+            label: tag slug:

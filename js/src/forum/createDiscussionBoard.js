@@ -6,10 +6,9 @@ import DiscussionPage from "flarum/components/DiscussionPage";
 import Board from './components/Board'
 
 export default function() {
-
     override(DiscussionPage.prototype, 'view', function (original) {
         if(this.discussion && this.discussion.posts().length > 0
-            && this.discussion.tags().some(t => t.name() === 'board')) {
+            && this.discussion.tags().some(t => t.name() === app.forum.attribute('boardTag'))) {
 
             try {
                 return Board.component({

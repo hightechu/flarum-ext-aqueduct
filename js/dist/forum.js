@@ -13366,7 +13366,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = (function () {
   Object(flarum_extend__WEBPACK_IMPORTED_MODULE_0__["override"])(flarum_components_DiscussionPage__WEBPACK_IMPORTED_MODULE_4___default.a.prototype, 'view', function (original) {
     if (this.discussion && this.discussion.posts().length > 0 && this.discussion.tags().some(function (t) {
-      return t.name() === 'board';
+      return t.name() === app.forum.attribute('boardTag');
     })) {
       try {
         return _components_Board__WEBPACK_IMPORTED_MODULE_5__["default"].component({
@@ -13404,17 +13404,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 app.initializers.add('hyn-aqueduct', function (app) {
-  flarum_tags_models_Tag__WEBPACK_IMPORTED_MODULE_2___default.a.prototype.canAccessBoard = flarum_Model__WEBPACK_IMPORTED_MODULE_1___default.a.attribute('canAccessBoard');
-  flarum_tags_models_Tag__WEBPACK_IMPORTED_MODULE_2___default.a.prototype.canUseBoard = flarum_Model__WEBPACK_IMPORTED_MODULE_1___default.a.attribute('canUseBoard');
-  flarum_tags_models_Tag__WEBPACK_IMPORTED_MODULE_2___default.a.prototype.canManageBoard = flarum_Model__WEBPACK_IMPORTED_MODULE_1___default.a.attribute('canManageBoard');
-  flarum_tags_models_Tag__WEBPACK_IMPORTED_MODULE_2___default.a.prototype.columns = flarum_Model__WEBPACK_IMPORTED_MODULE_1___default.a.hasMany('columns');
-  flarum_tags_models_Tag__WEBPACK_IMPORTED_MODULE_2___default.a.prototype.boardSort = flarum_Model__WEBPACK_IMPORTED_MODULE_1___default.a.attribute('boardSort') || null;
-  flarum_tags_models_Tag__WEBPACK_IMPORTED_MODULE_2___default.a.prototype.boardMaxItems = flarum_Model__WEBPACK_IMPORTED_MODULE_1___default.a.attribute('boardMaxItems') || null;
-  flarum_models_Discussion__WEBPACK_IMPORTED_MODULE_3___default.a.prototype.canAccessBoard = flarum_Model__WEBPACK_IMPORTED_MODULE_1___default.a.attribute('canAccessBoard');
-  flarum_models_Discussion__WEBPACK_IMPORTED_MODULE_3___default.a.prototype.canUseBoard = flarum_Model__WEBPACK_IMPORTED_MODULE_1___default.a.attribute('canUseBoard');
-  flarum_models_Discussion__WEBPACK_IMPORTED_MODULE_3___default.a.prototype.canManageBoard = flarum_Model__WEBPACK_IMPORTED_MODULE_1___default.a.attribute('canManageBoard');
-  flarum_models_Discussion__WEBPACK_IMPORTED_MODULE_3___default.a.prototype.assignedUsers = flarum_Model__WEBPACK_IMPORTED_MODULE_1___default.a.hasMany('assignedUsers');
-  flarum_models_Discussion__WEBPACK_IMPORTED_MODULE_3___default.a.prototype.assignedGroups = flarum_Model__WEBPACK_IMPORTED_MODULE_1___default.a.hasMany('assignedGroups');
   Object(_createDiscussionBoard__WEBPACK_IMPORTED_MODULE_0__["default"])();
 });
 
