@@ -13255,7 +13255,7 @@ function (_Component) {
       return _components_Card__WEBPACK_IMPORTED_MODULE_5__["default"].component({
         discussionId: dis.id,
         delete: function _delete() {
-          delete _this2.discussions[i];
+          _this2.discussions.splice(i, 1);
 
           _this2.update(_this2.discussions);
         }

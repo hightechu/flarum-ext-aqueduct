@@ -56,7 +56,7 @@ export default class Column extends Component {
                     return Card.component({
                         discussionId: dis.id,
                         delete: () => {
-                            delete this.discussions[i];
+                            this.discussions.splice(i, 1);
                             this.update(this.discussions);
                         }
                     });
